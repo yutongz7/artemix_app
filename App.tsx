@@ -62,6 +62,14 @@ function App(): JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  // test for connection:
+  fetch('http://192.168.1.5:4000/api/', {
+    method: 'GET',
+  })
+  .then(response => console.log(response.json()))
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar
