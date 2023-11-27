@@ -13,21 +13,117 @@ interface DetailPageProps {
 }
 
 
-
 const DetailPage: React.FC<DetailPageProps> = ({route}) => {
-
     const pressedArtData = route.params.data;
     const navigation = useNavigation<DetailPageNavigationProp>();
     const [isLiked, setIsLiked] = useState(false);
     const [commentsBarOpacity, setCommentsBarOpacity] = useState(0.3)
+    var recommendThisArtist = false;
 
     const tags: string[] = (pressedArtData.artTags as unknown) as string[];
 
-    const toggleLike = () => {
-      // Toggle the like state
-      // Update the likes schema
-      setIsLiked(!isLiked);
-      setCommentsBarOpacity(!isLiked ? 1 : 0.3);
+    const userName = "nathan_j"; // use for now before login implemented
+
+    interface likesData {
+      message: string;
+      data: {
+        _id: string;
+        likeFromUserId: string;
+        artistIdToLikeCount: { [key: string]: number };
+        __v: number;
+        likedArtIds: string[];
+      }[];
+      artistIdToLikeCount: Map<string, number>;
+    }
+
+    const fetchLikesData = async () => {
+        try {
+          const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
+          const data: likesData = await response.json();
+          return data;
+        } catch (error) {
+          console.error('Error fetching likes:', error);
+        }
+    }
+
+    // if art was already liked, display it as liked
+    const isAlreadyLiked = async () => {
+      var likesData = await fetchLikesData();
+      if (!likesData) {
+        console.error('Error fetching likes data in isAlreadyLiked')
+      } else {
+        if (likesData.data[0].likedArtIds.includes(pressedArtData.artId)) {
+          setIsLiked(true);
+          setCommentsBarOpacity(!isLiked ? 1 : 0.3);
+        }
+      }
+    }
+
+    useEffect(() => {
+      isAlreadyLiked();
+    }, []);
+
+    const toggleLike = async () => {
+      var likesData = await fetchLikesData();
+      if (!likesData) {
+        console.error('Error fetching likes data in toggleLike');
+      } else {
+          var incrementLikes = false;
+          if (!isLiked) { // user just liked the art
+            incrementLikes = true;
+          }
+          // console.log(JSON.stringify(likesData, null, 2));
+          const artistIdToLikeCount = new Map(Object.entries(likesData.data[0].artistIdToLikeCount));
+          // console.log("BEFORE " + likesData.data[0].likedArtIds)
+          artistIdToLikeCount.set(pressedArtData.userId, (artistIdToLikeCount.get(pressedArtData.userId) || 0) + (incrementLikes ? 1 : -1));
+          var likedArtIdsArr: string[] = []
+          if (incrementLikes) {
+            likedArtIdsArr = [...likesData.data[0].likedArtIds, pressedArtData.artId];
+          } else {
+            likedArtIdsArr = likesData.data[0].likedArtIds.filter((artId) => artId !== pressedArtData.artId);
+          }
+          // console.log("AFTER " + likedArtIdsArr);
+          try {
+            const newLikesData = {
+              likeFromUserId: userName,
+              artistIdToLikeCount: Object.fromEntries(artistIdToLikeCount),
+              likedArtIds: likedArtIdsArr,
+            };
+        
+            const response = await fetch('http://localhost:4000/likes', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newLikesData),
+            });
+        
+            const result = await response.json();
+        
+            if (response.status === 200) {
+              setIsLiked(!isLiked);
+              setCommentsBarOpacity(!isLiked ? 1 : 0.3);
+              // console.log("Artist ID to Like Count:", JSON.stringify(Object.fromEntries(artistIdToLikeCount), null, 2));
+              if (artistIdToLikeCount.get(pressedArtData.userId) == 3) {
+                recommendThisArtist = true;
+              }
+            } else {
+              console.error('Error creating like:', result.message);
+            }
+          } catch (error) {
+            console.error('Error creating like:', error);
+          }
+      }
+
+      if (recommendThisArtist) {
+        navigation.navigate('RecPage', {
+          data: { 
+            artistId: pressedArtData.userId,
+            artistUsername: pressedArtData.userName,
+            userId: userName,
+          }
+        })
+      }
     };
 
     return (

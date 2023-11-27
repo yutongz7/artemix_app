@@ -11,5 +11,9 @@ export type RootStackParamList = {
         width: number;
         height: number;
     }; };
-    // Add more screen names if needed
+    RecPage: { data: {
+        artistId: string,
+        artistUsername: string,
+        userId: string,
+    }}
   };

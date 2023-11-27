@@ -22,10 +22,6 @@ const BottomTabNavigator: React.FC = () => {
         tabBarStyle: [
           { 
             backgroundColor: 'rgba(61, 28, 81, 0.7)',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0
           }
         ],
         tabBarIcon: ({ focused, color, size }) => {

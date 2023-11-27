@@ -56,13 +56,38 @@ const HomePage: React.FC = () => {
     console.log('Image pressed:', art);
   };
 
+    // Function to calculate scaled dimensions while maintaining aspect ratio
+    const getScaledDimensions = (originalWidth: number, originalHeight: number, maxWidth: number, maxHeight: number) => {
+        const aspectRatio = originalWidth / originalHeight;
+    
+        // Calculate scaled dimensions
+        let scaledWidth = originalWidth;
+        let scaledHeight = originalHeight;
+    
+        if (scaledWidth > maxWidth) {
+          scaledWidth = maxWidth;
+          scaledHeight = scaledWidth / aspectRatio;
+        }
+    
+        if (scaledHeight > maxHeight) {
+          scaledHeight = maxHeight;
+          scaledWidth = scaledHeight * aspectRatio;
+        }
+    
+        return { width: scaledWidth, height: scaledHeight };
+      };
+
   return (
     <ScrollView contentContainerStyle={styles.container} horizontal={false}>
       {arts.map((item) => (
         <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)}>
           <Image
             source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
-            style={{ width: item.width, height: item.height, margin: 10, borderRadius: 10 }}
+            style={{
+                ...getScaledDimensions(item.width, item.height, 185, 300),
+                margin: 10,
+                borderRadius: 10,
+              }}
           />
         </TouchableOpacity>
       ))}
