@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, } from 'react';
 import { View, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../navigation/NavigationTypes';
+import BottomTabNavigator from '../navigation/BottomTabNavigator';
 
 interface Art {
   _id: string;
+  userId: string;
+  userName: string;
+  artTitle: string;
+  artContent: string;
   artAddress: string;
+  artTags: {type: [String], default: []};
   width: number;
   height: number;
 }
-
+type HomeScreenNavigationProp = NavigationProp<RootStackParamList, 'Home'>;
 const HomePage: React.FC = () => {
   const [arts, setArts] = useState<Art[]>([]);
+
 
   useEffect(() => {
     fetch('http://localhost:4000/arts')
@@ -25,8 +34,25 @@ const HomePage: React.FC = () => {
       .catch((error) => console.error('Error fetching arts:', error));
   }, []);
 
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   const handleImagePress = (art: Art) => {
-    // Handle the press event for the image here (detail page shows) 
+    // Handle the press event for the image here (detail page shows)
+    // navigate to the detail page with all the art data passed in
+    // TODO: update seen
+    navigation.navigate('DetailPage', {
+      data: { 
+        artId: art._id,
+        userId: art.userId,
+        userName: art.userName,
+        artTitle: art.artTitle,
+        artContent: art.artContent,
+        artAddress: art.artAddress,
+        artTags: art.artTags,
+        width: art.width,
+        height: art.height
+      }
+    })
     console.log('Image pressed:', art);
   };
 

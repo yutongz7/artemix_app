@@ -15,6 +15,7 @@
   .catch(error => console.error('Error:', error));
   ```
 - Make sure you run the backend code or there would be connection error
+- Try npm install react-native-elements if not already installed or if any errors occur(Kongmeng)
 
 ## Developing in a simulator:
 
