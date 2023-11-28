@@ -14,6 +14,7 @@ const BottomTabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        headerShown: true,
         tabBarLabelStyle: {
           display: "none"
         },

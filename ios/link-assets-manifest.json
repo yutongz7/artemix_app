@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/QuattrocentoSans-Bold.ttf",
+      "sha1": "5a213ad3b5a97ead252e886bbbe5fd3603a3dbfa"
+    },
+    {
+      "path": "assets/fonts/QuattrocentoSans-BoldItalic.ttf",
+      "sha1": "9bcfa1ab958c0f7a29760b87bd513568a3c7353d"
+    },
+    {
+      "path": "assets/fonts/QuattrocentoSans-Italic.ttf",
+      "sha1": "ddcd693a6f53cbb37f8a392e0084b4aedfc64e4a"
+    },
+    {
+      "path": "assets/fonts/QuattrocentoSans-Regular.ttf",
+      "sha1": "274fd0af6bd02268e82ea93ee41b07200b3d1c20"
+    }
+  ]
+}

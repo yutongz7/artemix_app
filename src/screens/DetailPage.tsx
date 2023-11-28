@@ -127,7 +127,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     };
 
     return (
-        <View style={styles.everything}>
+        <ScrollView>
             {/* Back Button */}
             <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 45 }}
             onPress={() => navigation.navigate('Home')}/>
@@ -169,14 +169,11 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
                     Say Something...
                 </Text>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-  everything: {
-    height: '95%'
-  },
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -186,6 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     paddingLeft: 10,
     paddingTop: 5,
+    fontfamily: 'QuattrocentoSans-Regular',
   },
   contentContainer: {
     flexDirection: 'row',
@@ -193,7 +191,8 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   tagsText: {
-    color: '#5364B7'
+    color: '#5364B7',
+    fontfamily: 'QuattrocentoSans-Regular',
   },
   likeButton: {
     backgroundColor: '#E38F9C',
@@ -201,15 +200,14 @@ const styles = StyleSheet.create({
     height: 50,
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: '15%',
-    left: '25%',
+    top: 70,
     paddingTop: 50,
+    alignItems: 'center',
   },
   commentsContainer: {
-    position: 'absolute',
-    bottom: 0,
+    opacity: 0.2,
     flexDirection: 'row',
+    top: 200,
     backgroundColor: 'transparent',
     alignSelf: 'center',
 	  width: '85%',
