@@ -4,6 +4,7 @@ import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/nati
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Button } from 'react-native-elements';
+import Modal from 'react-native-modal';
 import Comments from './Comments';
 
 type DetailPageRouteProp = RouteProp<RootStackParamList, 'DetailPage'>;
@@ -133,7 +134,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
     };
 
     return (
-        <ScrollView>
+        <ScrollView style={{flex: 1}}>
             {/* Back Button */}
             <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 45 }}
             onPress={() => navigation.navigate('Home')}/>
@@ -169,12 +170,32 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
             </View>
 
             {/* Comments */}
-            <View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]} >
-                <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
-                <Text style={{ paddingLeft: 10, alignSelf: 'center' }}>
-                    Say Something...
-                </Text>
-            </View>
+            {isLiked ? (
+              <TouchableOpacity onPress={toggleModal} activeOpacity={0.8} 
+              style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
+                    <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
+                    <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
+                        Say Something...
+                    </Text>
+              </TouchableOpacity>) :
+              (<View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
+                    <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
+                    <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
+                        Say Something...
+                    </Text>
+              </View>
+            )}
+            <Modal isVisible={isModalVisible} animationIn="slideInUp" animationOut="slideOutDown" onBackdropPress={toggleModal}>
+                <View style={styles.modalContainer}>
+                  <ScrollView style={{margin: 10}}>
+                    <TouchableOpacity onPress={toggleModal} style={{position: 'absolute', right: 0, height:30, width:30}}>
+                      <Ionicons name='close-circle' size={30}/>
+                    </TouchableOpacity>
+                    <Text style={{fontSize: 25}}>Comments</Text>
+                    <Comments artId={pressedArtData.artId}/>
+                  </ScrollView>
+                </View>
+            </Modal>
         </ScrollView>
     );
 };
@@ -206,14 +227,15 @@ const styles = StyleSheet.create({
     height: 50,
   },
   buttonContainer: {
-    top: 70,
+    position: 'absolute',
+    bottom: -150,
+    left: '25%',
     paddingTop: 50,
-    alignItems: 'center',
   },
   commentsContainer: {
-    opacity: 0.2,
+    position: 'absolute',
+    bottom: -300,
     flexDirection: 'row',
-    top: 200,
     backgroundColor: 'transparent',
     alignSelf: 'center',
 	  width: '85%',
