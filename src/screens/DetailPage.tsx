@@ -1,26 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, StyleSheet, Text, ScrollView } from 'react-native';
+import { View, Image, StyleSheet, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Button } from 'react-native-elements';
+import Modal from 'react-native-modal';
+import Comments from './Comments';
 
 type DetailPageRouteProp = RouteProp<RootStackParamList, 'DetailPage'>;
 type DetailPageNavigationProp = NavigationProp<RootStackParamList, 'DetailPage'>;
 
 interface DetailPageProps {
   route: DetailPageRouteProp;
+  artId: string;
 }
 
-
-const DetailPage: React.FC<DetailPageProps> = ({route}) => {
+const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
     const pressedArtData = route.params.data;
     const navigation = useNavigation<DetailPageNavigationProp>();
     const [isLiked, setIsLiked] = useState(false);
     const [commentsBarOpacity, setCommentsBarOpacity] = useState(0.3)
+    const [isModalVisible, setModalVisible] = useState(false);
     var recommendThisArtist = false;
 
     const tags: string[] = (pressedArtData.artTags as unknown) as string[];
+
+    const toggleModal = () => {
+      setModalVisible(!isModalVisible);
+    };
 
     const userName = "nathan_j"; // use for now before login implemented
 
@@ -163,12 +170,33 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
             </View>
 
             {/* Comments */}
-            <View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]} >
-                <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
-                <Text style={{ paddingLeft: 10, alignSelf: 'center' }}>
-                    Say Something...
-                </Text>
-            </View>
+            {isLiked ? (
+              <TouchableOpacity onPress={toggleModal} activeOpacity={0.8} 
+              style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
+                    <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
+                    <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
+                        Say Something...
+                    </Text>
+              </TouchableOpacity>) :
+              (<View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
+                    <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
+                    <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
+                        Say Something...
+                    </Text>
+              </View>
+            )}
+            <Modal isVisible={isModalVisible} animationIn="slideInUp" animationOut="slideOutDown" onBackdropPress={toggleModal}>
+                <View style={styles.modalContainer}>
+                  <ScrollView style={{margin: 10}}>
+                    <TouchableOpacity onPress={toggleModal} style={{position: 'absolute', right: 0, height:30, width:30}}>
+                      <Ionicons name='close-circle' size={30}/>
+                    </TouchableOpacity>
+                    <Text style={{fontSize: 25}}>Comments</Text>
+                    <Comments artId={pressedArtData.artId}/>
+                  </ScrollView>
+                </View>
+            </Modal>
+
         </View>
     );
 };
@@ -221,6 +249,28 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderColor: "#5364B7",
     borderWidth: 3
+  },
+  modalContainer: {
+    width: '100%',
+    height: '55%',
+    borderStyle: 'solid',
+    borderColor: "#5364B7",
+    borderWidth: 3,
+    bottom: 0,
+    position: 'absolute',
+    backgroundColor: '#DCE5F7',
+    borderBottomRightRadius: 25,
+	  borderBottomLeftRadius: 25,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+  },
+  modalWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    background: '#252424cc',
+    height: '100%',
+    width: '100%'
   }
 });
 
