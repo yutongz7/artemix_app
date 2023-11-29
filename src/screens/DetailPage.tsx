@@ -4,7 +4,6 @@ import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/nati
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Button } from 'react-native-elements';
-import Modal from 'react-native-modal';
 import Comments from './Comments';
 
 type DetailPageRouteProp = RouteProp<RootStackParamList, 'DetailPage'>;
@@ -176,7 +175,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
                     Say Something...
                 </Text>
             </View>
-        </View>
+        </ScrollView>
     );
 };
 
