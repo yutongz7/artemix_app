@@ -134,7 +134,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
     };
 
     return (
-        <ScrollView style={{flex: 1}}>
+        <View style={{height: '95%'}}>
             {/* Back Button */}
             <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 45 }}
             onPress={() => navigation.navigate('Home')}/>
@@ -196,11 +196,14 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
                   </ScrollView>
                 </View>
             </Modal>
-        </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+  everything: {
+    height: '95%'
+  },
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,13 +231,13 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: -150,
+    bottom: '15%',
     left: '25%',
     paddingTop: 50,
   },
   commentsContainer: {
     position: 'absolute',
-    bottom: -300,
+    bottom: 0,
     flexDirection: 'row',
     backgroundColor: 'transparent',
     alignSelf: 'center',
