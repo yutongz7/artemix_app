@@ -84,7 +84,7 @@ const HomePage: React.FC = () => {
           <Image
             source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
             style={{
-                ...getScaledDimensions(item.width, item.height, 185, 300),
+                ...getScaledDimensions(item.width, item.height, 160, 300),
                 margin: 10,
                 borderRadius: 10,
               }}

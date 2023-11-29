@@ -16,4 +16,6 @@ export type RootStackParamList = {
         artistUsername: string,
         userId: string,
     }}
+    LoginPage: undefined,
+    RegistrationPage: undefined,
   };

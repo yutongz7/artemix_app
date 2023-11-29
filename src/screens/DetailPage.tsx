@@ -134,7 +134,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
     };
 
     return (
-        <View style={styles.everything}>
+        <ScrollView>
             {/* Back Button */}
             <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 45 }}
             onPress={() => navigation.navigate('Home')}/>
@@ -170,41 +170,17 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
             </View>
 
             {/* Comments */}
-            {isLiked ? (
-              <TouchableOpacity onPress={toggleModal} activeOpacity={0.8} 
-              style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
-                    <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
-                    <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
-                        Say Something...
-                    </Text>
-              </TouchableOpacity>) :
-              (<View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
-                    <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
-                    <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
-                        Say Something...
-                    </Text>
-              </View>
-            )}
-            <Modal isVisible={isModalVisible} animationIn="slideInUp" animationOut="slideOutDown" onBackdropPress={toggleModal}>
-                <View style={styles.modalContainer}>
-                  <ScrollView style={{margin: 10}}>
-                    <TouchableOpacity onPress={toggleModal} style={{position: 'absolute', right: 0, height:30, width:30}}>
-                      <Ionicons name='close-circle' size={30}/>
-                    </TouchableOpacity>
-                    <Text style={{fontSize: 25}}>Comments</Text>
-                    <Comments artId={pressedArtData.artId}/>
-                  </ScrollView>
-                </View>
-            </Modal>
-
+            <View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]} >
+                <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
+                <Text style={{ paddingLeft: 10, alignSelf: 'center' }}>
+                    Say Something...
+                </Text>
+            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-  everything: {
-    height: '95%'
-  },
   imageContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -214,6 +190,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     paddingLeft: 10,
     paddingTop: 5,
+    fontfamily: 'QuattrocentoSans-Regular',
   },
   contentContainer: {
     flexDirection: 'row',
@@ -221,7 +198,8 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   tagsText: {
-    color: '#5364B7'
+    color: '#5364B7',
+    fontfamily: 'QuattrocentoSans-Regular',
   },
   likeButton: {
     backgroundColor: '#E38F9C',
@@ -229,15 +207,14 @@ const styles = StyleSheet.create({
     height: 50,
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: '15%',
-    left: '25%',
+    top: 70,
     paddingTop: 50,
+    alignItems: 'center',
   },
   commentsContainer: {
-    position: 'absolute',
-    bottom: 0,
+    opacity: 0.2,
     flexDirection: 'row',
+    top: 200,
     backgroundColor: 'transparent',
     alignSelf: 'center',
 	  width: '85%',
