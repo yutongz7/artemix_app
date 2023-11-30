@@ -12,10 +12,10 @@ type DetailPageNavigationProp = NavigationProp<RootStackParamList, 'DetailPage'>
 
 interface DetailPageProps {
   route: DetailPageRouteProp;
-  artId: string;
+  //artId: string;
 }
 
-const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
+const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     const pressedArtData = route.params.data;
     const navigation = useNavigation<DetailPageNavigationProp>();
     const [isLiked, setIsLiked] = useState(false);
@@ -36,11 +36,10 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
       data: {
         _id: string;
         likeFromUserId: string;
-        artistIdToLikeCount: { [key: string]: number };
+        artistIdToLikedArts: Map<string, string[]>;
         __v: number;
         likedArtIds: string[];
       }[];
-      artistIdToLikeCount: Map<string, number>;
     }
 
     const fetchLikesData = async () => {
@@ -80,9 +79,21 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
             incrementLikes = true;
           }
           // console.log(JSON.stringify(likesData, null, 2));
-          const artistIdToLikeCount = new Map(Object.entries(likesData.data[0].artistIdToLikeCount));
+          const artistIdToLikedArts = new Map<string, string[]>(Object.entries(likesData.data[0].artistIdToLikedArts));
           // console.log("BEFORE " + likesData.data[0].likedArtIds)
-          artistIdToLikeCount.set(pressedArtData.userId, (artistIdToLikeCount.get(pressedArtData.userId) || 0) + (incrementLikes ? 1 : -1));
+          if (incrementLikes) {
+            console.log(artistIdToLikedArts.get(pressedArtData.userId))
+            artistIdToLikedArts.set(
+              pressedArtData.userId,
+              [...(artistIdToLikedArts.get(pressedArtData.userId) || []), pressedArtData.artId]
+            );
+          } else {
+            artistIdToLikedArts.set(
+              pressedArtData.userId,
+              (artistIdToLikedArts.get(pressedArtData.userId) || []).filter((artId) => artId !== pressedArtData.artId)
+            );
+          }
+
           var likedArtIdsArr: string[] = []
           if (incrementLikes) {
             likedArtIdsArr = [...likesData.data[0].likedArtIds, pressedArtData.artId];
@@ -93,7 +104,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
           try {
             const newLikesData = {
               likeFromUserId: userName,
-              artistIdToLikeCount: Object.fromEntries(artistIdToLikeCount),
+              artistIdToLikeCount: Object.fromEntries(artistIdToLikedArts),
               likedArtIds: likedArtIdsArr,
             };
         
@@ -110,8 +121,8 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
             if (response.status === 200) {
               setIsLiked(!isLiked);
               setCommentsBarOpacity(!isLiked ? 1 : 0.3);
-              // console.log("Artist ID to Like Count:", JSON.stringify(Object.fromEntries(artistIdToLikeCount), null, 2));
-              if (artistIdToLikeCount.get(pressedArtData.userId) == 3) {
+              console.log("Artist ID to Like Count:", JSON.stringify(Object.fromEntries(artistIdToLikedArts), null, 2));
+              if (artistIdToLikedArts.get(pressedArtData.userId)?.length == 3) {
                 recommendThisArtist = true;
               }
             } else {
@@ -216,7 +227,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     marginLeft: 20,
     paddingTop: 5,
-    fontfamily: 'QuattrocentoSans-Regular',
+    fontFamily: 'QuattrocentoSans-Regular',
   },
   contentContainer: {
     flexDirection: 'row',
@@ -225,7 +236,7 @@ const styles = StyleSheet.create({
   },
   tagsText: {
     color: '#5364B7',
-    fontfamily: 'QuattrocentoSans-Regular',
+    fontFamily: 'QuattrocentoSans-Regular',
   },
   likeButton: {
     backgroundColor: '#E38F9C',
