@@ -1,8 +1,10 @@
 import React, { useState, useEffect, } from 'react';
-import { View, Image, ScrollView, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface CommentProps {
     artId: string;
+    username: string;
 }
 
 interface Comments {
@@ -12,7 +14,7 @@ interface Comments {
     commentContent: String,
   }
 
-const CommentsSection: React.FC<CommentProps> = ({artId}) => {
+const CommentsSection: React.FC<CommentProps> = ({artId, username}) => {
     const [comments, setComments] = useState<Comments[]>([]);
 
     useEffect(() => {
@@ -31,21 +33,39 @@ const CommentsSection: React.FC<CommentProps> = ({artId}) => {
             .catch((error) => console.error('Error fetching comments:', error));
         }, []);
 
+    const [filteredComments, setFilteredComments] = useState<Comments[]>([]);
+
+    useEffect(() => {
+        const filtered = comments.filter(comment => comment.commentToArtId === artId);
+        setFilteredComments(filtered);
+      }, [comments, artId]);
+
   return (
     <View style={{paddingTop: 10}}>
-        {comments.map((item) => (
-            ((item.commentToArtId === artId) ?
-            (
+        {(filteredComments.length === 0) ? (
+            <Text style={{marginTop: 5, fontSize: 15}}>
+                It's looking a little empty...
+            </Text>
+        ) : (
+            filteredComments.map((item) => (
+
                 <View key={item._id} style={styles.commentTexture}>
-                    <Text style={styles.commentText}>{item.commentContent}</Text>
+                    <Ionicons name="person-circle-sharp" size={40} style={{marginTop: 5}}/>
+                    <View>
+                        {(username === item.commentFromUserId) ? (                        
+                            <Text style={{marginTop:5, marginLeft: 5, fontSize: 15, fontWeight:'bold'}}>
+                                You
+                            </Text>) 
+                        :(
+                            <Text style={{marginTop:5, marginLeft: 5, fontSize: 15, fontWeight:'bold'}}>
+                                Anonymous User
+                            </Text>
+                        )}
+                        <Text style={styles.commentText}>{item.commentContent}</Text>
+                    </View>
                 </View>
-            ) : 
-            (( 
-                <Text style={{marginTop: 5, fontSize: 15}}>
-                    It's looking a little empty...
-                </Text>
-            ))) 
-        ))}
+            ))
+        )}
     </View>
   ) as React.ReactElement;
 };
@@ -58,15 +78,9 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     commentTexture: {
+        flexDirection: 'row',
         marginTop: 10,
         marginBottom: 10,
-        borderColor: "#5364B7",
-        borderWidth: 1,
-        backgroundColor: '#DCE5F7',
-        borderBottomRightRadius: 25,
-        borderBottomLeftRadius: 25,
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
     }
 })
 

@@ -175,24 +175,27 @@ const DetailPage: React.FC<DetailPageProps> = ({route, artId}) => {
               style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
                     <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
                     <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
-                        Say Something...
+                        View Comments
                     </Text>
               </TouchableOpacity>) :
               (<View style={[styles.commentsContainer, { opacity: commentsBarOpacity }]}>
                     <Ionicons name='chatbubble-ellipses-outline' size={30} style={{ paddingLeft: 10, paddingTop: 1.75 }}/>
                     <Text style={{ paddingLeft: 10, alignSelf: 'center'}}>
-                        Say Something...
+                        View Comments
                     </Text>
               </View>
             )}
             <Modal isVisible={isModalVisible} animationIn="slideInUp" animationOut="slideOutDown" onBackdropPress={toggleModal}>
                 <View style={styles.modalContainer}>
+                  <View style={[styles.commentsContainer, {bottom: 10, width: '95%'}]}>
+                      <Text style={{marginLeft: 8, marginTop: 8}}>Say Something...</Text>
+                  </View>
                   <ScrollView style={{margin: 10}}>
                     <TouchableOpacity onPress={toggleModal} style={{position: 'absolute', right: 0, height:30, width:30}}>
                       <Ionicons name='close-circle' size={30}/>
                     </TouchableOpacity>
                     <Text style={{fontSize: 25}}>Comments</Text>
-                    <Comments artId={pressedArtData.artId}/>
+                    <Comments artId={pressedArtData.artId} username={userName}/>
                   </ScrollView>
                 </View>
             </Modal>
@@ -211,14 +214,14 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 30,
-    paddingLeft: 10,
+    marginLeft: 20,
     paddingTop: 5,
     fontfamily: 'QuattrocentoSans-Regular',
   },
   contentContainer: {
     flexDirection: 'row',
     marginTop: 10,
-    marginLeft: 10
+    marginLeft: 30
   },
   tagsText: {
     color: '#5364B7',
