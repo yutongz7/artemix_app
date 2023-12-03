@@ -15,13 +15,29 @@ interface DetailPageProps {
   //artId: string;
 }
 
+interface ArtistData {
+  _id: string;
+  userId: string;
+  userName: string;
+  userPassword: string;
+  userEmail: string;
+  userPhone: number;
+  userProfileImgAddress: string;
+  userPreferenceTags: string[];
+  tags: string[];
+}
+
 const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     const pressedArtData = route.params.data;
+    console.log("pressedArtData: ", pressedArtData)
     const navigation = useNavigation<DetailPageNavigationProp>();
     const [isLiked, setIsLiked] = useState(false);
     const [commentsBarOpacity, setCommentsBarOpacity] = useState(0.3)
     const [isModalVisible, setModalVisible] = useState(false);
     var recommendThisArtist = false;
+    const [artistInfo, setArtistInfo] = useState<ArtistData[]>([]);
+    const [artistProfileImgAddress, setArtistProfileImgAddress] = useState("");
+    const [artistPreferenceTags, setArtistPreferenceTags] = useState([]);
 
     const tags: string[] = (pressedArtData.artTags as unknown) as string[];
 
@@ -68,6 +84,28 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     useEffect(() => {
       isAlreadyLiked();
     }, []);
+
+    const fetchArtistData = async () => {
+      console.log("fetchArtistData");
+      try {
+        const response = await fetch(`http://localhost:4000/users?where={"userId":"${pressedArtData.userId}"}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        // setArtistProfileImgAddress(data.data[0].userProfileImgAddress);
+        // console.log("artistProfileImgAddress = ", artistProfileImgAddress)
+        // setArtistPreferenceTags(data.data[0].userPreferenceTags);
+        // console.log("artistPreferenceTags = ", artistPreferenceTags)
+        setArtistInfo(data.data);
+        console.log("artistProfileImgAddress = ", artistInfo[0].userProfileImgAddress);
+        console.log("artistPreferenceTags = ", artistInfo[0].userPreferenceTags);
+        console.log("artistInfo: ", artistInfo);
+        return data;
+      } catch(error) {
+        console.error('Error fetching arts:', error);
+      }
+    }
 
     const toggleLike = async () => {
       var likesData = await fetchLikesData();
@@ -134,11 +172,22 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
       }
 
       if (recommendThisArtist) {
+        fetchArtistData();
         navigation.navigate('RecPage', {
           data: { 
             artistId: pressedArtData.userId,
             artistUsername: pressedArtData.userName,
+            artistProfileImgAddress: artistInfo[0].userProfileImgAddress,
+            artistPreferenceTags: artistInfo[0].userPreferenceTags,
             userId: userName,
+            artId: pressedArtData.artId,
+            artisName: pressedArtData.userName,
+            artTitle: pressedArtData.artTitle,
+            artContent: pressedArtData.artContent,
+            artAddress: pressedArtData.artAddress,
+            artTags: pressedArtData.artTags,
+            width: pressedArtData.width,
+            height: pressedArtData.height
           }
         })
       }

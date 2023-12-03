@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomePage from '../screens/HomePage';
 import SearchPage from '../screens/SearchPage';
 import PostPage from '../screens/PostPage';
-import ChatPage from '../screens/ChatPage';
+import InboxPage from '../screens/InboxPage';
 import ProfilePage from '../screens/ProfilePage';
 
 const Tab = createBottomTabNavigator();
@@ -47,7 +47,7 @@ const BottomTabNavigator: React.FC = () => {
       <Tab.Screen name="Home" component={HomePage} />
       <Tab.Screen name="Search" component={SearchPage} />
       <Tab.Screen name="Post" component={PostPage} />
-      <Tab.Screen name="Chat" component={ChatPage} />
+      <Tab.Screen name="Chat" component={InboxPage} />
       <Tab.Screen name="Profile" component={ProfilePage} />
     </Tab.Navigator>
   ) as React.ReactElement;
