@@ -38,6 +38,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     const [artistInfo, setArtistInfo] = useState<ArtistData[]>([]);
     const [artistProfileImgAddress, setArtistProfileImgAddress] = useState("");
     const [artistPreferenceTags, setArtistPreferenceTags] = useState([]);
+    const [isNewRecommendArtist, setIsNewRecommendArtist] = useState(true);
 
     const tags: string[] = (pressedArtData.artTags as unknown) as string[];
 
@@ -105,7 +106,87 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
       } catch(error) {
         console.error('Error fetching arts:', error);
       }
+    };
+    
+    useEffect(() => {
+      fetchArtistData();
+    }, [])
+
+    interface recommendArtistData {
+      message: string;
+      data: {
+        _id: string;
+        userId: String;
+        recommendArtistIds: Map<string, string>;
+      }[];
+    };
+
+    const fetchRecommendArtist = async () => {
+      console.log("fetchRecommendArtist");
+      try {
+        const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${userName}"}`);
+        const data: recommendArtistData = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching recommendArtists: ', error);
+      }
+    };
+
+    const updateRecommendArtistsTable = async () => {
+      console.log("updateRecommendArtistsTable: isLiked = ", isLiked)
+      if (isLiked === false) {
+        console.log("updateRecommendArtistsTable");
+        var recommendArtist = await fetchRecommendArtist();
+        if (!recommendArtist) {
+          console.error('Error fetching recommendArtist data in updateRecommendArtistsTable')
+        } else {
+          const keys = Object.keys(recommendArtist.data[0].recommendArtistIds);
+          if (keys.includes(pressedArtData.userId)) {
+            // already recommended
+            console.log("updateRecommendArtistsTable: already recommended");
+            console.log("before: isNewRecommendArtist = ", isNewRecommendArtist)
+            setIsNewRecommendArtist(false);
+            console.log("after: isNewRecommendArtist = ", isNewRecommendArtist)
+          } else {
+            // update recommendArtistIds
+            setIsNewRecommendArtist(true);
+            console.log("updateRecommendArtistsTable: update recommendArtistIds");
+            
+            const keyId = pressedArtData.userId;
+            const newRecommendArtistIds = { 
+              ...recommendArtist.data[0].recommendArtistIds, 
+              [keyId]: "notChat" 
+            };
+            const newRecommendArtist = {
+              userId: userName,
+              recommendArtistIds: newRecommendArtistIds,
+            };
+            console.log("newRecommendArtist: ", newRecommendArtist)
+            try {
+              const response = await fetch('http://localhost:4000/recommendArtists', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newRecommendArtist),
+              });
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              const result = await response.json();
+              console.log("successful post: ", result);
+            } catch (error) {
+              console.error("Error when post recommendArtist data: ", error);
+            }
+          }
+        }
+        return recommendArtist;
+      }
     }
+
+    // useEffect(() => {
+    //   updateRecommendArtistsTable();
+    // }, []);
 
     const toggleLike = async () => {
       var likesData = await fetchLikesData();
@@ -160,7 +241,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
               setIsLiked(!isLiked);
               setCommentsBarOpacity(!isLiked ? 1 : 0.3);
               console.log("Artist ID to Like Count:", JSON.stringify(Object.fromEntries(artistIdToLikedArts), null, 2));
-              if (artistIdToLikedArts.get(pressedArtData.userId)?.length == 3) {
+              if ((artistIdToLikedArts.get(pressedArtData.userId)?.length ?? 0) >= 3) {
                 recommendThisArtist = true;
               }
             } else {
@@ -169,28 +250,37 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
           } catch (error) {
             console.error('Error creating like:', error);
           }
-      }
 
-      if (recommendThisArtist) {
-        fetchArtistData();
-        navigation.navigate('RecPage', {
-          data: { 
-            artistId: pressedArtData.userId,
-            artistUsername: pressedArtData.userName,
-            artistProfileImgAddress: artistInfo[0].userProfileImgAddress,
-            artistPreferenceTags: artistInfo[0].userPreferenceTags,
-            userId: userName,
-            artId: pressedArtData.artId,
-            artisName: pressedArtData.userName,
-            artTitle: pressedArtData.artTitle,
-            artContent: pressedArtData.artContent,
-            artAddress: pressedArtData.artAddress,
-            artTags: pressedArtData.artTags,
-            width: pressedArtData.width,
-            height: pressedArtData.height
+          const artistProfileImgAddress = artistInfo[0]?.userProfileImgAddress;
+          const artistPreferenceTags = artistInfo[0]?.userPreferenceTags
+          console.log("toggleLike: incrementLikes =", incrementLikes);
+          console.log("toggleLike: recommendThisArtist =", recommendThisArtist);
+          if (incrementLikes === true && recommendThisArtist === true) {
+            const rec_data = updateRecommendArtistsTable();
+            console.log("detail page: rec_data = ", rec_data)
+            if (isNewRecommendArtist) {
+              console.log("new artist -> recommend page");
+              fetchArtistData();
+              navigation.navigate('RecPage', {
+                data: { 
+                  artistId: pressedArtData.userId,
+                  artistUsername: pressedArtData.userName,
+                  artistProfileImgAddress: artistProfileImgAddress,
+                  artistPreferenceTags: artistPreferenceTags,
+                  userId: userName,
+                  artId: pressedArtData.artId,
+                  artisName: pressedArtData.userName,
+                  artTitle: pressedArtData.artTitle,
+                  artContent: pressedArtData.artContent,
+                  artAddress: pressedArtData.artAddress,
+                  artTags: pressedArtData.artTags,
+                  width: pressedArtData.width,
+                  height: pressedArtData.height
+                }
+              });
+            }
           }
-        })
-      }
+      };
     };
 
     return (
