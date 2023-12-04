@@ -31,4 +31,5 @@ export type RootStackParamList = {
     InboxPage: undefined,
     ChatPage: undefined,
     RegistrationPage: undefined,
+    ProfilePage: undefined,
   };
