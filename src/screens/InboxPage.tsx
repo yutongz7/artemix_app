@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
@@ -11,7 +11,8 @@ const InboxPage: React.FC = () => {
   const [artistsMap, setArtistsMap] = useState<Map<string, string>>(new Map());
   const [artistInfo, setArtistInfo] = useState<ArtistData[]>([]);
   const [inboxArtists, setInboxArtists] = useState<ArtistData[]>([]);
-  const [penddingArtists, setPenddingArtists] = useState<ArtistData[]>([]);
+  const [pendingArtists, setPendingArtists] = useState<ArtistData[]>([]);
+  const [checkFetchRecommendArtist, setCheckFetchRecommendArtist] = useState(false);
   
   type InboxPageNavigationProp = NavigationProp<RootStackParamList, 'InboxPage'>;
   const navigation = useNavigation<InboxPageNavigationProp>();
@@ -41,136 +42,98 @@ const InboxPage: React.FC = () => {
     }[];
   };
 
-  // const fetchRecommendArtist = async () => {
-  //   console.log("fetchRecommendArtist");
-  //   try {
-  //     const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${userName}"}`);
-  //     const data: recommendArtistData = await response.json();
-  //     console.log("chat recommendArtistData: ", data.data[0].recommendArtistIds)
-  //     return data;
-  //   } catch (error) {
-  //     console.error('Error fetching recommendArtists: ', error);
-  //   }
-  // };
-
-  // interface ArtistData {
-  //   userId: string;
-  //   userProfileImgAddress: string;
-  //   userPreferenceTags: string[];
-  // };
-
   const fetchArtistData = async (userId : string, status: any) => {
-    console.log("fetchArtistData: userId = ", userId);
+    // console.log("fetchArtistData: userId = ", userId);
     try {
       const response = await fetch(`http://localhost:4000/users?where={"userId":"${userId}"}`);
       const data = await response.json();
-      console.log("chat fetchArtistData: ", data.data[0]);
-      if (status === 'notChat') {
-        setPenddingArtists(prevPenddingList => ([...prevPenddingList, ...data.data[0]]))
-      } else if (status === 'chat') {
-        setInboxArtists(prevInboxList => ([...prevInboxList, ...data.data[0]]))
-      }
-      console.log("Data after udpate: penddingArtists = ", penddingArtists);
-      console.log("Data after udpate: inboxArtists = ", inboxArtists);
-      return data.data[0];
+      // console.log("chat fetchArtistData: ", data.data[0]);
+      // if (status === 'notChat') {
+      //   setPendingArtists(prevPendingList => ([...prevPendingList, ...data.data[0]]))
+      // } else if (status === 'chat') {
+      //   setInboxArtists(prevInboxList => ([...prevInboxList, ...data.data[0]]))
+      // }
+      // console.log("Data after udpate: pendingArtists = ", pendingArtists);
+      // console.log("Data after udpate: inboxArtists = ", inboxArtists);
+      return data;
     } catch (error) {
       console.error('Error fetching arts:', error);
     }
   };
 
+  const fetchRecommendArtist = async () => {
+    // console.log("fetchRecommendArtist");
+    try {
+      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${userName}"}`);
+      const data: recommendArtistData = await response.json();
+      const value = data.data[0].recommendArtistIds;
+      const newEntries = Object.entries(value) as [string, string][];
+      const newMap = new Map<string, string>(newEntries);
+      // console.log("raw data: ", data)
+      // console.log("newMap: ", newMap);
+      setArtistsMap(newMap);
+      setCheckFetchRecommendArtist(true);
+      return newMap;
+    } catch (error) {
+      console.error('Error fetching recommendArtists: ', error);
+    }
+  };
 
-  // useEffect(() => {
-  //   if (artistId) {
-  //     console.log("useEffect: artistId = ", artistId)
-  //     fetchArtistData();
-  //   }
-  // }, []);
+  const getArtistData = async () => {
+    // const recData = await fetchRecommendArtist();
+    // const keys = Object.keys(artistsMap);
+    const keys = Array.from(artistsMap.keys());
+    // console.log("recData: ", recData);
+    // console.log("keys = ", Array.from(artistsMap.keys()));
 
-  // const get_data = async () => {
-  //   let inbox_artists = [];
-  //   let pending_artists = [];
+    // keys.map(userId => {
+    //   console.log("current userId = ", userId);
+    //   const status = artistsMap.get(userId);
+    //   const artistData = fetchArtistData(userId, status);
+    //   console.log("artistData = ", artistData)
+    // })
 
-  //   if (!artistsMap) {
-  //     console.error('Error fetching recommendArtist data in updateRecommendArtistsTable')
-  //   } else {
-  //     const keys = Object.keys(artistsMap);
-  //     for (const userId of keys) {
-  //       console.log("chat userId = ", userId)
-  //       setArtistId(userId);
-  //       console.log("chat after setArtistId = ", artistId)
+    let pendingList: ArtistData[] = [];
+    let inboxList: ArtistData[] = [];
 
-  //       let status;
-  //       if (artistsMap instanceof Map) {
-  //         status = artistsMap.get(userId);
-  //       } else {
-  //         status = artistsMap[userId];
-  //       }
-        
-  //       console.log("get data: status = ", status)
-  //       if (status === 'notChat') {
-  //         if (artistInfo) {
-  //           pending_artists.push(artistInfo);
-  //         } else {
-  //           pending_artists.push(artistInfoData);
-  //         }
-  //       } else if (status === 'chat') {
-  //         if (artistInfo) {
-  //           inbox_artists.push(artistInfo);
-  //         } else {
-  //           inbox_artists.push(artistInfoData);
-  //         }
-  //       }
-  //       console.log("status: ", status)
-  //     }
-  //     console.log("inbox_artists: ", inbox_artists);
-  //     console.log("pending_artists: ", pending_artists);
-  //     setInboxArtists(inbox_artists[0]);
-  //     setPenddingArtists(pending_artists[0]);
-  //     // console.log("userProfileImgAddress: ", penddingArtists[0].userProfileImgAddress)
-  //   }
-  // };
+    for (const userId of keys) {
+      // console.log("chat userId = ", userId)
+      const status = artistsMap.get(userId);
+      // console.log("artistsMap: status = ", status)
+      const artistData = await fetchArtistData(userId, status);
+      // console.log("artistData = ", artistData.data[0])
+      if (status === 'notChat') {
+        pendingList.push(artistData.data[0])
+      } else {
+        inboxArtists.push(artistData.data[0]);
+      }
+    }
+    setPendingArtists(pendingList);
+    // console.log("pendingList = ", pendingList)
+    // console.log("pendingArtists = ", pendingArtists);
+    setInboxArtists(inboxList);
+  }
 
   // useFocusEffect(
-  //   React.useCallback(() => {
-  //     get_data();
+  //   useCallback(() => {
+  //     fetchRecommendArtist();
+  //     getArtistData();
+  //     setCheckFetchRecommendArtist(false);
   //   }, [])
   // );
-
+  // fetchRecommendArtist();
+  // getArtistData();
   useEffect(() => {
-    // fetch the recommend user list
-    fetch(`http://localhost:4000/recommendArtists?where={"userId":"${userName}"}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setArtistsMap(data.data[0].recommendArtistIds);
-        console.log("inbox page: data = ", data)
-        console.log("inbox page: artists = ", artistsMap)
-      })
-      .catch((error) => console.error("Error fetching recommendArtists Ids: ", error))
-  }, [])
-  
-  useEffect(() => {
-    if (!artistsMap) {
-      console.error('Error fetching recommendArtist data in updateRecommendArtistsTable')
-    } else {
-      const keys = Object.keys(artistsMap);
-      for (const userId of keys) {
-        console.log("chat userId = ", userId)
-        const status = artistsMap.get(userId);
-        const artistInfoData = fetchArtistData(userId, status);
-      }
-      // console.log("inbox_artists: ", inbox_artists);
-      // console.log("pending_artists: ", pending_artists);
-      // setInboxArtists(inbox_artists[0]);
-      // setPenddingArtists(pending_artists[0]);
-      // console.log("userProfileImgAddress: ", penddingArtists[0].userProfileImgAddress)
-    }
+    fetchRecommendArtist();
+    getArtistData();
+    // console.log("pendingArtists = ", pendingArtists);
   }, [artistsMap])
 
   return (
     <View style={styles.overallStructure}>
       <View style={styles.inboxContainer}>
         <View style={styles.titleContainer}>
-          <Text style={styles.titleText}>Inbox</Text>
+          <Text style={styles.titleText}>Continue the conversation：</Text>
           <View style={styles.divider} />
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer} horizontal={false}>
@@ -184,13 +147,13 @@ const InboxPage: React.FC = () => {
           ))}
         </ScrollView>
       </View>
-      <View style={styles.inboxContainer}>
+      <View style={styles.pendingContainer}>
         <View style={styles.titleContainer}>
-          <Text style={styles.titleText}>Pendding</Text>
+          <Text style={styles.titleText}>Start a new conversation：</Text>
           <View style={styles.divider} />
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer} horizontal={false}>
-          {penddingArtists?.map((item) => (
+          {pendingArtists?.map((item) => (
             <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
               <View style={styles.itemContainer}>
                 <Image
@@ -203,6 +166,7 @@ const InboxPage: React.FC = () => {
                   <Text style={styles.textText}>Still interested? Send a message!</Text>
                 </View>
               </View>
+              <View style={styles.chatDivider} />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -227,15 +191,15 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   itemContainer: {
-    flex: 1, 
+    // flex: 1, 
     flexDirection: 'row',
     justifyContent: 'flex-start', 
     alignItems: 'center',
     marginLeft: 10,
-    marginTop: 30,
-    height: 100,
+    marginTop: 0,
+    height: 80,
     width: 350,
-    // backgroundColor: 'red'
+    // backgroundColor: 'green'
   },
   itemInfo: {
     flex: 1, 
@@ -254,29 +218,37 @@ const styles = StyleSheet.create({
   divider: {
     height: 5,
     width: 360,
-    marginleft: 15,
+    marginleft: 0,
     backgroundColor: '#E38F9C',
   },
+  chatDivider: {
+    height: 1,
+    width: 360,
+    marginleft: 15,
+    backgroundColor: '#FCC6CF',
+  },
   titleContainer: {
-    marginLeft: 15,
+    marginLeft: 0,
     paddingTop: 5,
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: "500",
     fontFamily: 'QuattrocentoSans-Italic',
     color: '#33363F',
   },
   chatContainer: {
-    flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    justifyContent: 'center',
-    maxHeight: 200,
+    paddingLeft: 10,
+    marginVertical: 10,
+    justifyContent: 'flex-start',
+    // backgroundColor: 'red',
   },
   inboxContainer: {
-    height: 200,
+    height: 300,
+  },
+  pendingContainer: {
+   height: 500,
   },
   nameText: {
     fontSize: 20,

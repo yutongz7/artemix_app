@@ -241,7 +241,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
               setIsLiked(!isLiked);
               setCommentsBarOpacity(!isLiked ? 1 : 0.3);
               console.log("Artist ID to Like Count:", JSON.stringify(Object.fromEntries(artistIdToLikedArts), null, 2));
-              if ((artistIdToLikedArts.get(pressedArtData.userId)?.length ?? 0) >= 3) {
+              if ((artistIdToLikedArts.get(pressedArtData.userId)?.length ?? 0) == 3) {
                 recommendThisArtist = true;
               }
             } else {
@@ -255,8 +255,8 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
           const artistPreferenceTags = artistInfo[0]?.userPreferenceTags
           console.log("toggleLike: incrementLikes =", incrementLikes);
           console.log("toggleLike: recommendThisArtist =", recommendThisArtist);
-          if (incrementLikes === true && recommendThisArtist === true) {
-            const rec_data = updateRecommendArtistsTable();
+          if (incrementLikes === true && recommendThisArtist === true && isNewRecommendArtist === true) {
+            const rec_data = await updateRecommendArtistsTable();
             console.log("detail page: rec_data = ", rec_data)
             if (isNewRecommendArtist) {
               console.log("new artist -> recommend page");
