@@ -73,12 +73,12 @@ const ProfilePage: React.FC = () => {
           likedArtIds: likes.likedArtIds
         }));
         setLikesData(likesProcessing);
-        console.log(likesData);
+        console.log("likes data: ", likesData);
         const buffer = arts.filter((art) => 
           likesData[0].likedArtIds.includes(art._id)
         );
         setLikedArt(buffer);
-        console.log(likedArt);
+        console.log("liked art: ", likedArt);
       })
       .catch((error) => console.error('Error fetching likes:', error));
   }, []);
@@ -121,6 +121,11 @@ const ProfilePage: React.FC = () => {
       }
     })
     console.log('Image pressed:', art);
+  };
+
+  const handleSettingsPress = () => {
+    navigation.navigate('UserSettings');
+    // console.log('Image pressed:');
   };
 
   const renderContent = () => {
@@ -184,6 +189,11 @@ const ProfilePage: React.FC = () => {
         />
         <Text style={{fontSize: 30, marginTop: 10}}>Nathan J</Text>
         <Text style={{marginTop: 5}}>Photographer</Text>
+        <View style={styles.settingsContainer}>
+          <TouchableOpacity onPress={() => handleSettingsPress()}>
+            <Ionicons name='settings-sharp' size={25} color='white'/>
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.artToggle}>
 
@@ -263,6 +273,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 10
   },
+  settingsContainer: {
+    position: 'absolute', 
+    bottom: 80, 
+    left: 80, 
+    backgroundColor:'#5364B7',
+    width: 35,
+    height: 35,
+    borderRadius: 200,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
 
 export default ProfilePage;

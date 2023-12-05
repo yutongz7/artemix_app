@@ -9,6 +9,7 @@ import RegistrationPage from './src/screens/RegistrationPage';
 import ChatPage from './src/screens/ChatPage';
 import ArtistProfilePage from './src/screens/ArtistProfile';
 import ProfilePage from './src/screens/ProfilePage';
+import UserSettings from './src/screens/UserSettings';
 import { RootStackParamList } from './src/navigation/NavigationTypes';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,7 +30,8 @@ const App = () => {
         <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
         <Stack.Screen name="ArtistProfilePage" component={ArtistProfilePage} />
         <Stack.Screen name="ChatPage" component={ChatPage} />
-        <Stack.Screen name="ProfilePage" component={ChatPage} />
+        <Stack.Screen name="ProfilePage" component={ProfilePage} />
+        <Stack.Screen name="UserSettings" component={UserSettings} />
       </Stack.Navigator>
     </NavigationContainer>
   );

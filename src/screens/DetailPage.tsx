@@ -196,7 +196,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
         <View style={{height: '95%'}}>
             {/* Back Button */}
             <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 45 }}
-            onPress={() => navigation.navigate('Home')}/>
+            onPress={() => navigation.goBack()}/>
 
             {/* Main Content */}
             <Text style={styles.titleText}> {pressedArtData.artTitle} </Text>
@@ -305,10 +305,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
 	  width: '85%',
 	  height: 40,
-	  borderBottomRightRadius: 25,
-	  borderBottomLeftRadius: 25,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+    borderRadius: 25,
     borderStyle: 'solid',
     borderColor: "#5364B7",
     borderWidth: 3
@@ -322,10 +319,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     position: 'absolute',
     backgroundColor: '#DCE5F7',
-    borderBottomRightRadius: 25,
-	  borderBottomLeftRadius: 25,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+    borderRadius: 25
   },
   modalWrapper: {
     position: 'absolute',
