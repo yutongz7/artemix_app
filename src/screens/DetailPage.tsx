@@ -3,7 +3,6 @@ import { View, Image, StyleSheet, Text, TouchableOpacity, ScrollView, TouchableW
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Button } from 'react-native-elements';
 import Modal from 'react-native-modal';
 import Comments from './Comments';
 
@@ -311,13 +310,10 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
             </View>
 
             {/* Like Button */}
-            <View style={styles.buttonContainer}>
-                <Button 
-                    icon={<Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={30} color="white" />}
-                    onPress={toggleLike}
-                    buttonStyle={styles.likeButton}
-                />
-            </View>
+            <TouchableOpacity style={styles.likeButton} onPress={toggleLike}>
+              <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={30} color="white" />
+              <Text style={{color: 'white'}}>Interested</Text>
+            </TouchableOpacity>
 
             {/* Comments */}
             {isLiked ? (
@@ -378,15 +374,18 @@ const styles = StyleSheet.create({
     fontFamily: 'QuattrocentoSans-Regular',
   },
   likeButton: {
+    alignSelf:'center', 
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: '10%',
     backgroundColor: '#E38F9C',
     width: 200,
     height: 50,
-  },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: '15%',
-    left: '25%',
-    paddingTop: 50,
+    borderBottomRightRadius: 25,
+	  borderBottomLeftRadius: 25,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
   },
   commentsContainer: {
     position: 'absolute',
