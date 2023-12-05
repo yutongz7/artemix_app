@@ -65,7 +65,7 @@ const RecPage: React.FC<RecPageProps> = ({ route }) => {
     navigation.navigate('ArtistProfilePage');
   };
 
-  const formattedInterests = recData.artistPreferenceTags.join(' | ')
+  const formattedInterests = recData.artistPreferenceTags?.join(' | ')
 
   // useEffect(() => {
   //   if (recData.artistId) {
@@ -84,14 +84,15 @@ const RecPage: React.FC<RecPageProps> = ({ route }) => {
   //   } else {
   //     console.log("Artist ID is not defined.");
   //   }
-  // }, [recData.artistId]);
+  // }, []);
+
   // useEffect(() => {
   //   if (recData.artistId) {
   //     fetchArtistData();
   //   }
   // }, [recData.artistId]);
 
-  // const firstArtist = artistInfo[0];
+  const firstArtist = artistInfo[0];
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <View>
@@ -100,6 +101,7 @@ const RecPage: React.FC<RecPageProps> = ({ route }) => {
       <View style={styles.profilePhotoContainer}>
         <Image
           source={{uri: `http://localhost:4000/images/${recData.artistProfileImgAddress}`}}
+          // source={{uri: `http://localhost:4000/images/${artistInfo[0].userProfileImgAddress}`}}
           style={{ width: 200, height: 200 }}
         />
       </View>
