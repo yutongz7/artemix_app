@@ -78,9 +78,9 @@ const HomePage: React.FC = () => {
       };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} horizontal={false} style={{backgroundColor: 'blue'}}>
+    <ScrollView contentContainerStyle={styles.container} horizontal={false}>
       {arts.map((item) => (
-        <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)} style={{backgroundColor: 'red'}}>
+        <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)}>
           <Image
             source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
             style={{
