@@ -29,8 +29,20 @@ const InboxPage: React.FC = () => {
     tags: string[];
   };
 
-  const handleChat = () => {
-    navigation.navigate('ChatPage');
+  const handleChat = (artist: ArtistData) => {
+    navigation.navigate('ChatPage', {
+      data: {
+        _id: artist._id,
+        userId: artist.userId,
+        userName: artist.userName,
+        userPassword: artist.userPassword,
+        userEmail: artist.userEmail,
+        userPhone: artist.userPhone,
+        userProfileImgAddress: artist.userProfileImgAddress,
+        userPreferenceTags: artist.userPreferenceTags,
+        tags: artist.tags,
+      }
+    });
   };
 
   const handleArtistsProfile = (artist: ArtistData) => {
@@ -117,7 +129,7 @@ const InboxPage: React.FC = () => {
       if (status === 'notChat') {
         pendingList.push(artistData.data[0])
       } else {
-        inboxArtists.push(artistData.data[0]);
+        inboxList.push(artistData.data[0]);
       }
     }
     setPendingArtists(pendingList);
@@ -150,11 +162,18 @@ const InboxPage: React.FC = () => {
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer} horizontal={false}>
           {inboxArtists?.map((item) => (
-            <TouchableOpacity key={item._id} onPress={() => handleChat()}>
-              <Image
-                source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
-                style={{ width: 40, height: 40 }}
-              />
+            <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
+              <View style={styles.itemContainer}>
+                <Image
+                  source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
+                  style={styles.imgStyle}
+                />
+                <View style={styles.itemInfo}>
+                  <Text style={styles.nameText}>{item.userName}</Text>
+                  <Text style={styles.tagsText}>{item.userPreferenceTags?.join(' | ')}</Text>
+                  <Text style={styles.textText}>Continue chat</Text>
+                </View>
+              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -166,7 +185,7 @@ const InboxPage: React.FC = () => {
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer} horizontal={false}>
           {pendingArtists?.map((item) => (
-            <TouchableOpacity key={item._id} onPress={() => handleChat()}>
+            <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
               <View style={styles.itemContainer}>
                 <TouchableOpacity key={item._id} onPress={() => handleArtistsProfile(item)}>
                   <Image
