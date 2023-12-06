@@ -45,7 +45,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
       setModalVisible(!isModalVisible);
     };
 
-    const userName = "nathan_j"; // use for now before login implemented
+    const userName = "nathan_j";
 
     interface likesData {
       message: string;
