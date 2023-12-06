@@ -28,7 +28,7 @@ interface ArtistData {
 
 const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     const pressedArtData = route.params.data;
-    console.log("pressedArtData: ", pressedArtData)
+    // console.log("pressedArtData: ", pressedArtData)
     const navigation = useNavigation<DetailPageNavigationProp>();
     const [isLiked, setIsLiked] = useState(false);
     const [commentsBarOpacity, setCommentsBarOpacity] = useState(0.3)
@@ -86,7 +86,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
     }, []);
 
     const fetchArtistData = async () => {
-      console.log("fetchArtistData");
+      // console.log("fetchArtistData");
       try {
         const response = await fetch(`http://localhost:4000/users?where={"userId":"${pressedArtData.userId}"}`);
         if (!response.ok) {
@@ -98,9 +98,9 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
         // setArtistPreferenceTags(data.data[0].userPreferenceTags);
         // console.log("artistPreferenceTags = ", artistPreferenceTags)
         setArtistInfo(data.data);
-        console.log("artistProfileImgAddress = ", artistInfo[0]?.userProfileImgAddress);
-        console.log("artistPreferenceTags = ", artistInfo[0].userPreferenceTags);
-        console.log("artistInfo: ", artistInfo);
+        // console.log("artistProfileImgAddress = ", artistInfo[0]?.userProfileImgAddress);
+        // console.log("artistPreferenceTags = ", artistInfo[0].userPreferenceTags);
+        // console.log("artistInfo: ", artistInfo);
         return data;
       } catch(error) {
         console.error('Error fetching arts:', error);

@@ -24,6 +24,7 @@ interface ArtistData {
 
 const RecPage: React.FC<RecPageProps> = ({ route }) => {
   const [artistInfo, setArtistInfo] = useState<ArtistData[]>([]);
+  const [artistData, setartistData] = useState<ArtistData>();
   const recData = route.params.data;
   const navigation = useNavigation<RecPageNavigationProp>();
 
@@ -37,6 +38,7 @@ const RecPage: React.FC<RecPageProps> = ({ route }) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
+      setartistData(data);
       setArtistInfo(data.data);
       console.log("artistInfo: ", artistInfo)
       return data;
@@ -62,8 +64,16 @@ const RecPage: React.FC<RecPageProps> = ({ route }) => {
   };
 
   const handleViewProfile = () => {
-    navigation.navigate('ArtistProfilePage');
+    navigation.navigate('ArtistProfilePage', {
+      data: {
+        userId: recData.artistId,
+        userName: recData.artistUsername,
+        userProfileImgAddress: recData.artistProfileImgAddress,
+        userPreferenceTags: recData.artistPreferenceTags,
+      }
+    });
   };
+  console.log("recData.artistPreferenceTags: ", recData.artistPreferenceTags)
 
   const formattedInterests = recData.artistPreferenceTags?.join(' | ')
 

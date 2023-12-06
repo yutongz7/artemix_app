@@ -32,7 +32,6 @@ const Menu = styled(TouchableOpacity)`
 const Icon = styled(Image).attrs({ resizeMode: 'contain' })`
   height: 34px;
   width: 40px;
-  flextTop: 80px;
 `;
 
 // Define the ReturnTabs functional component with proper typing

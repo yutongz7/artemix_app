@@ -14,8 +14,8 @@ interface ArtistProfilePageProps {
 
 const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   const recData = route.params.data;
-  const [showUserArt, setShowUserArt]= useState(true);
-  const [likesArts, setLikesArts] = useState([])
+  const [likesArts, setLikesArts] = useState<Art []>([]);
+  // const [likesData, setLikesData] = useState<likesData []>([]);
   const [userArt, setUserArt] = useState<Art []>([]);
   const navigation = useNavigation<ArtistProfilePageNavigationProp>();
   const [arts, setArts] = useState<Art[]>([]);
@@ -44,6 +44,10 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       __v: number;
       likedArtIds: string[];
     }[];
+  };
+
+  const handleChat = () => {
+    navigation.navigate('ChatPage');
   };
 
   const setArtList = () => {
@@ -119,7 +123,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
         height: art.height
       }
     })
-    console.log('Image pressed:', art);
+    // console.log('Image pressed:', art);
   };
 
   const artListView = () => {
@@ -141,43 +145,82 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
     );
   };
 
-  const mutualPreferenceView = async () => {
-    // let likesArtIds = [];
-    // let likesArts = [];
-    var likesData = await fetchLikesData();
-    if (!likesData) {
-      console.error('Error fetching likes data in isAlreadyLiked')
-    } else {
-      const userLikes = likesData.find(item => item.likeFromUserId === recData.userId);
-      let likesArtIds = userLikes ? userLikes.artistIdToLikedArts : [];
+  useEffect(() => {
+    const getMutualData = async() => {
+      // console.log("getMutualData")
+      let filteredArts: Art[] = [];
+      var likesData = await fetchLikesData();
+      if (!likesData) {
+        console.error('Error fetching likes data in isAlreadyLiked')
+      } else {
+        // console.log("getMutualData: get the data");
+        // console.log("likesData: ", likesData);
+        // console.log("userId = ", recData.userId)
+        const userLikes = likesData[0].artistIdToLikedArts;
+        // console.log("userLikes = ", userLikes);
+        // console.log("recData.userId = ", recData.userId)
+        const newEntries = Object.entries(userLikes) as [string, string[]][];
+        const newMap = new Map<string, string[]>(newEntries);
+        const likesArtIds = userLikes ? newMap.get(recData.userId) : [];
+        // console.log("likesArtIds = ", likesArtIds);
+        filteredArts = arts.filter(art => likesArtIds?.includes(art._id));
+        // console.log("filteredArts = ", filteredArts);
+        setLikesArts(filteredArts);
+        // console.log("likesArts = ", likesArts);
+      }
+    };
+    getMutualData();
+  })
 
-      // likesArtIds = likesData.artistIdToLikedArts.{recData.userId};
-      // const filteredArts = arts.filter(art => likesArtIds.includes(art.userId));
-      // setLikesArts(filteredArts);
-    }
+  useEffect(() => {
+    fetchLikesData();
+  }, [curTag, recData.userId, arts])
+
+  const mutualPreferenceView = () => {
     return (
-      <ScrollView contentContainerStyle={styles.container_art} horizontal={false}>
-        {/* {likesArts.map((item) => (
-          <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)}>
-            <Image
-              source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
-              style={{
-                  ...getScaledDimensions(item.width, item.height, 160, 300),
-                  margin: 10,
-                  borderRadius: 10,
-                }}
-            />
-          </TouchableOpacity>
-        ))} */}
-      </ScrollView>
+      <View>
+        <View style={styles.container_analysis}>
+          <View style={styles.container_textSubtitle}>
+            <Text style={styles.textSubtitle}>Posts you've liked from this artist:</Text>
+          </View>
+          <ScrollView contentContainerStyle={styles.container_mutualArt} horizontal={true}>
+            {likesArts.map((item) => (
+              <TouchableOpacity key={item.artAddress} onPress={() => handleImagePress(item)}>
+                <Image
+                  source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
+                  style={{
+                      ...getScaledDimensions(item.width, item.height, 160, 300),
+                      margin: 10,
+                      borderRadius: 10,
+                    }}
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+        <View style={styles.container_analysis}>
+          <View style={styles.container_textSubtitle}>
+            <Text style={styles.textSubtitle}>Posts this artist has liked from you:</Text>
+          </View>
+          <View style={styles.textMutualArt}>
+            <Text>This artist hasn't liked your art yet. </Text>
+            <Text>Chat with this artist to discuss your art!</Text>
+          </View>
+        </View>
+      </View>
     );
   };
+
+  useEffect(() => {
+    const filtered = arts.filter(art => art.userId === recData.userId);
+    setUserArt(filtered);
+  }, [arts, recData.userId]);
 
   const renderContent = () => {
     if (curTag === "artList"){
       return artListView();
     } else if (curTag === "mutualPreference") {
-      return <Text>mutualPreference</Text>
+      return mutualPreferenceView();
     } else if(curTag === "schedule") {
       return <Text>schedule</Text>
     }
@@ -191,7 +234,12 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
                   source={{uri: `http://localhost:4000/images/${recData.userId}.png`}}
                   style={styles.imageStyle}
           />
-          <Text style={{fontSize: 30, marginTop: 10}}>{recData.userName}</Text>
+          <View style={styles.bioTop}>
+            <Text style={{fontSize: 30, marginTop: 10}}>{recData.userName}</Text>
+            <TouchableOpacity onPress={handleChat}>
+              <Ionicons name='chatbubbles' size={30} color='#E38F9C' />
+            </TouchableOpacity>
+          </View>
           <Text style={{marginTop: 5}}>{recData.userPreferenceTags.join(' | ')}</Text>
         </View>
         
@@ -263,10 +311,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 100,
   },
+  textSubtitle: {
+    // color: '#E38F9C', 
+    fontSize: 20,
+    textAlign: 'left',
+    fontWeight: '400',
+  },
+  container_textSubtitle: {
+    marginTop: 10,
+    width: '100%',
+    marginLeft: 20,
+    // backgroundColor: 'blue'
+  },
   container: {
     flexDirection: 'column',
-    justifyContent: 'center', 
-    alignItems: 'center'
+    justifyContent: 'flex-start', 
+    alignItems: 'flex-start'
+  },
+  container_analysis: {
+    marginTop: 10,
+    marginBottom: 10,
+    flexDirection: 'column',
+    justifyContent: 'flex-start', 
+    alignItems: 'center',
+    height: 300,
+    // backgroundColor: 'red'
+  },
+  bioTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
   imageStyle: {
     marginTop: 15,
@@ -297,6 +372,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  textMutualArt: {
+    marginTop: 20,
+  },
   dividerTouchable: {
     height: 3,
     width: 100,
@@ -319,6 +397,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     justifyContent: 'center',
+    height: 600,
+  },
+  container_mutualArt: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 5,
+    paddingTop: 5,
+    justifyContent: 'center',
+    // width: 600,
   },
 });
 

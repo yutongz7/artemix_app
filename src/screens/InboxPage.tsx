@@ -29,23 +29,17 @@ const InboxPage: React.FC = () => {
     tags: string[];
   };
 
-  const handleChat = (artist: ArtistData) => {
+  const handleChat = () => {
     navigation.navigate('ChatPage');
   };
 
   const handleArtistsProfile = (artist: ArtistData) => {
-    console.log("ArtistData = ", artist);
     navigation.navigate('ArtistProfilePage', {
       data: {
-        _id: artist._id,
         userId: artist.userId,
         userName: artist.userName,
-        userPassword: artist.userPassword,
-        userEmail: artist.userEmail,
-        userPhone: artist.userPhone,
         userProfileImgAddress: artist.userProfileImgAddress,
         userPreferenceTags: artist.userPreferenceTags,
-        tags: artist.tags,
       }
     });
   };
@@ -156,7 +150,7 @@ const InboxPage: React.FC = () => {
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer} horizontal={false}>
           {inboxArtists?.map((item) => (
-            <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
+            <TouchableOpacity key={item._id} onPress={() => handleChat()}>
               <Image
                 source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
                 style={{ width: 40, height: 40 }}
@@ -172,7 +166,7 @@ const InboxPage: React.FC = () => {
         </View>
         <ScrollView contentContainerStyle={styles.chatContainer} horizontal={false}>
           {pendingArtists?.map((item) => (
-            <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
+            <TouchableOpacity key={item._id} onPress={() => handleChat()}>
               <View style={styles.itemContainer}>
                 <TouchableOpacity key={item._id} onPress={() => handleArtistsProfile(item)}>
                   <Image
