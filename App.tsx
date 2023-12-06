@@ -7,7 +7,7 @@ import RecPage from './src/screens/RecPage';
 import LoginPage from './src/screens/LoginPage';
 import RegistrationPage from './src/screens/RegistrationPage';
 import ChatPage from './src/screens/ChatPage';
-import ArtistProfilePage from './src/screens/ArtistProfile';
+import ArtistProfilePage from './src/screens/ArtistProfilePage';
 import ProfilePage from './src/screens/ProfilePage';
 import { RootStackParamList } from './src/navigation/NavigationTypes';
 
@@ -29,7 +29,7 @@ const App = () => {
         <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
         <Stack.Screen name="ArtistProfilePage" component={ArtistProfilePage} />
         <Stack.Screen name="ChatPage" component={ChatPage} />
-        <Stack.Screen name="ProfilePage" component={ChatPage} />
+        <Stack.Screen name="ProfilePage" component={ProfilePage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

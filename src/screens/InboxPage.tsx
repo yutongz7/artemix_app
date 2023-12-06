@@ -33,6 +33,24 @@ const InboxPage: React.FC = () => {
     navigation.navigate('ChatPage');
   };
 
+  const handleArtistsProfile = (artist: ArtistData) => {
+    console.log("ArtistData = ", artist);
+    navigation.navigate('ArtistProfilePage', {
+      data: {
+        _id: artist._id,
+        userId: artist.userId,
+        userName: artist.userName,
+        userPassword: artist.userPassword,
+        userEmail: artist.userEmail,
+        userPhone: artist.userPhone,
+        userProfileImgAddress: artist.userProfileImgAddress,
+        userPreferenceTags: artist.userPreferenceTags,
+        tags: artist.tags,
+      }
+    });
+  };
+
+
   interface recommendArtistData {
     message: string;
     data: {
@@ -156,10 +174,12 @@ const InboxPage: React.FC = () => {
           {pendingArtists?.map((item) => (
             <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
               <View style={styles.itemContainer}>
-                <Image
-                  source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
-                  style={{ width: 60, height: 60 }}
-                />
+                <TouchableOpacity key={item._id} onPress={() => handleArtistsProfile(item)}>
+                  <Image
+                    source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
+                    style={styles.imgStyle}
+                  />
+                </TouchableOpacity>
                 <View style={styles.itemInfo}>
                   <Text style={styles.nameText}>{item.userName}</Text>
                   <Text style={styles.tagsText}>{item.userPreferenceTags?.join(' | ')}</Text>
@@ -189,6 +209,11 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'flex-start', 
     alignItems: 'center'
+  },
+  imgStyle: {
+    width: 70,
+    height: 70,
+    borderRadius: 200
   },
   itemContainer: {
     // flex: 1, 

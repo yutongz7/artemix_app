@@ -26,7 +26,17 @@ export type RootStackParamList = {
         width: number;
         height: number;
     }};
-    ArtistProfilePage: undefined,
+    ArtistProfilePage: { data: {
+        _id: string;
+        userId: string;
+        userName: string;
+        userPassword: string;
+        userEmail: string;
+        userPhone: number;
+        userProfileImgAddress: string;
+        userPreferenceTags: string[];
+        tags: string[];
+    }},
     LoginPage: undefined,
     InboxPage: undefined,
     ChatPage: undefined,

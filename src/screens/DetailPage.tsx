@@ -98,7 +98,7 @@ const DetailPage: React.FC<DetailPageProps> = ({route}) => {
         // setArtistPreferenceTags(data.data[0].userPreferenceTags);
         // console.log("artistPreferenceTags = ", artistPreferenceTags)
         setArtistInfo(data.data);
-        console.log("artistProfileImgAddress = ", artistInfo[0].userProfileImgAddress);
+        console.log("artistProfileImgAddress = ", artistInfo[0]?.userProfileImgAddress);
         console.log("artistPreferenceTags = ", artistInfo[0].userPreferenceTags);
         console.log("artistInfo: ", artistInfo);
         return data;
