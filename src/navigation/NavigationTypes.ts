@@ -42,4 +42,5 @@ export type RootStackParamList = {
     ChatPage: undefined,
     RegistrationPage: undefined,
     ProfilePage: undefined,
+    UserSettings: undefined
   };
