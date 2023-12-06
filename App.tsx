@@ -30,7 +30,8 @@ const App = () => {
         <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
         <Stack.Screen name="ArtistProfilePage" component={ArtistProfilePage} />
         <Stack.Screen name="ChatPage" component={ChatPage} />
-        <Stack.Screen name="ProfilePage" component={ChatPage} />
+        <Stack.Screen name="ProfilePage" component={ProfilePage} />
+        <Stack.Screen name="UserSettings" component={UserSettings} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput} from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import ReturnTabs from "../component/ReturnTabs";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import DatePicker from 'react-native-datepicker';
 
 type ArtistProfilePageRouteProp = RouteProp<RootStackParamList, 'ArtistProfilePage'>;
 type ArtistProfilePageNavigationProp = NavigationProp<RootStackParamList, 'ArtistProfilePage'>;
@@ -20,6 +21,12 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   const navigation = useNavigation<ArtistProfilePageNavigationProp>();
   const [arts, setArts] = useState<Art[]>([]);
   const [curTag, setCurTag]= useState<String>("artList"); // artList / mutualPreference / schedule
+  const [msgData, setMsgData] = useState<string>('');
+  const [showSelector, setShowSelector] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState<string>('');
+  const [dateText, setDateText] = useState<string>('');
+  const [mode, setMode] = useState<string>('');
   
   const userName = "nathan_j";
 
@@ -211,6 +218,96 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
     );
   };
 
+  const handleSentMeeting = () => {
+    console.log(recData);
+    setMsgData('');
+    // clear the date and time selector
+  }
+
+  const handleDateTimeOpen = (modeToShow: string) => {
+    setMode(modeToShow);
+    setShowSelector(!showSelector);
+  }
+
+  const scheduleView = () => {
+    return (
+      <View style={styles.container_schedule}>
+        <Text style={{fontSize: 23, marginTop: 45}}>
+          Send Meeting Request to {recData.userName}
+        </Text>
+        <View style={styles.whenContainer}>
+          <View style={styles.whenLabels}>
+            <Text style={{color: 'white', fontSize: 17}}>Date</Text>
+          </View>
+          {!dateText && (
+            <Text style={{color: 'white', fontSize: 17, marginLeft: 5}}>{dateText}</Text>
+          )}
+          <TouchableOpacity style={{left: 210}} onPress={() => handleDateTimeOpen('date')}>
+            <Ionicons name='chevron-down-circle-outline' size={23} color='#3D1C51'/>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.whenContainer}>
+          <View style={styles.whenLabels}>
+              <Text style={{color: 'white', fontSize: 17}}>Time</Text>
+          </View>
+          {!time && (
+            <Text style={{color: 'white', fontSize: 17, marginLeft: 5}}>{time}</Text>
+          )}
+          <TouchableOpacity style={{left: 210}} onPress={() => handleDateTimeOpen('time')}>
+            <Ionicons name='chevron-down-circle-outline' size={23} color='#3D1C51'/>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.message}>
+          <Text style={{marginTop: 10, fontSize: 20, color: 'white'}}>Message</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Say something..."
+            value={msgData}
+            onChangeText={(text) => setMsgData(text)}
+            autoCapitalize="none"
+            multiline={true}
+          />
+        </View>
+        <TouchableOpacity style={styles.request} onPress={() => handleSentMeeting()}>
+          <Text style={{alignSelf: 'center', marginTop: 12, color: 'white'}}>
+            Send Meeting Request
+          </Text>
+        </TouchableOpacity>
+
+        {(showSelector && mode === 'date') ? (
+          <DatePicker 
+            style={{width: 200}}
+            date={date}
+            mode="date"
+            placeholder="Select Date"
+            onDateChange={(dateStr, date) => {
+              const month = date.getMonth();
+              const day = date.getDay();
+              const year = date.getFullYear();
+              const formattedDate = `${month} ${day}, ${year}`;
+              setDateText(formattedDate);
+              setDate(date);}
+            }
+          />
+        ) : (
+          <DatePicker 
+            style={{width: 200}}
+            date={date}
+            mode="time"
+            placeholder="Select Time"
+            onDateChange={(timeStr, time) => {
+              const hours = time.getHours();
+              const minutes = time.getMinutes();
+              const formattedTime = `${hours}:${minutes}`;
+              setTime(formattedTime);}
+            }
+          />
+        )}
+
+      </View>
+    )
+  }
+
   useEffect(() => {
     const filtered = arts.filter(art => art.userId === recData.userId);
     setUserArt(filtered);
@@ -222,7 +319,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
     } else if (curTag === "mutualPreference") {
       return mutualPreferenceView();
     } else if(curTag === "schedule") {
-      return <Text>schedule</Text>
+      return scheduleView();
     }
   };
 
@@ -407,6 +504,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // width: 600,
   },
+  container_schedule: {
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    height: 500,
+    // backgroundColor: 'red'
+  },
+  request: {
+    width: '45%',
+    height: '8%',
+    backgroundColor: '#D7798B',
+    borderRadius: 25,
+    marginTop: 20
+  },
+  message: {
+    width: '70%',
+    backgroundColor: 'rgba(155, 102, 150, 0.47)',
+    alignItems: 'center',
+    borderRadius: 15,
+    height: 250,
+    marginTop: 20
+  },
+  input: {
+    marginTop: 10,
+    width: '80%',
+    maxHeight: '80%',
+    // backgroundColor: 'yellow'
+  },
+  whenContainer: {
+    backgroundColor: '#D9D9D9',
+    width: '70%',
+    height: '6%',
+    borderRadius: 7,
+    marginTop: 15,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  whenLabels: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopLeftRadius: 7,
+    borderBottomLeftRadius: 7,
+    backgroundColor: '#3D1C51',
+    width: '20%',
+    height: '100%'
+  }
 });
 
 export default ArtistProfilePage;
