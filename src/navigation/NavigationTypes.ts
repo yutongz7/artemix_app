@@ -34,19 +34,7 @@ export type RootStackParamList = {
     }},
     LoginPage: undefined,
     InboxPage: undefined,
-    ChatPage: {
-        data: {
-            _id: string;
-            userId: string;
-            userName: string;
-            userPassword: string;
-            userEmail: string;
-            userPhone: number;
-            userProfileImgAddress: string;
-            userPreferenceTags: string[];
-            tags: string[];
-        }
-    },
+    ChatPage: undefined,
     RegistrationPage: undefined,
     ProfilePage: undefined,
     UserSettings: undefined
