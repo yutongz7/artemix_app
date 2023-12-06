@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import ReturnTabs from "../component/ReturnTabs";
@@ -10,16 +10,177 @@ type ArtistProfilePageNavigationProp = NavigationProp<RootStackParamList, 'Artis
 
 interface ArtistProfilePageProps {
   route: ArtistProfilePageRouteProp;
-}
+};
 
 const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   const recData = route.params.data;
   const [showUserArt, setShowUserArt]= useState(true);
+  const [likesArts, setLikesArts] = useState([])
+  const [userArt, setUserArt] = useState<Art []>([]);
   const navigation = useNavigation<ArtistProfilePageNavigationProp>();
-  const [curTag, setCurTag]= useState<String>("mutualPreference");
+  const [arts, setArts] = useState<Art[]>([]);
+  const [curTag, setCurTag]= useState<String>("artList"); // artList / mutualPreference / schedule
   
-  const toggleView = () => {
+  const userName = "nathan_j";
 
+  interface Art {
+    _id: string;
+    userId: string;
+    userName: string;
+    artTitle: string;
+    artContent: string;
+    artAddress: string;
+    artTags: {type: [String], default: []};
+    width: number;
+    height: number;
+  };
+  
+  interface likesData {
+    message: string;
+    data: {
+      _id: string;
+      likeFromUserId: string;
+      artistIdToLikedArts: Map<string, string[]>;
+      __v: number;
+      likedArtIds: string[];
+    }[];
+  };
+
+  const setArtList = () => {
+    setCurTag("artList");
+  };
+  const setMutualPreference = () => {
+    setCurTag("mutualPreference");
+  };
+  const setSchedule = () => {
+    setCurTag("schedule");
+  };
+
+  useEffect(() => {
+    fetch('http://localhost:4000/arts')
+      .then((response) => response.json())
+      .then((data) => {
+        const artsWithDimensions = data.data.map((art: Art) => ({
+          ...art,
+          width: art.width,
+          height: art.height,
+        }));
+        setArts(artsWithDimensions);
+      })
+      .catch((error) => console.error('Error fetching arts:', error));
+  }, []);
+
+  useEffect(() => {
+    const filtered = arts.filter(art => art.userId === recData.userId);
+    setUserArt(filtered);
+  }, [arts, recData.userId]);
+
+  const fetchLikesData = async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
+      const data: likesData = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error fetching likes:', error);
+    }
+  };
+
+  const getScaledDimensions = (originalWidth: number, originalHeight: number, maxWidth: number, maxHeight: number) => {
+    const aspectRatio = originalWidth / originalHeight;
+
+    // Calculate scaled dimensions
+    let scaledWidth = originalWidth;
+    let scaledHeight = originalHeight;
+
+    if (scaledWidth > maxWidth) {
+      scaledWidth = maxWidth;
+      scaledHeight = scaledWidth / aspectRatio;
+    }
+
+    if (scaledHeight > maxHeight) {
+      scaledHeight = maxHeight;
+      scaledWidth = scaledHeight * aspectRatio;
+    }
+
+    return { width: scaledWidth, height: scaledHeight };
+  };
+
+  const handleImagePress = (art: Art) => {
+    navigation.navigate('DetailPage', {
+      data: { 
+        artId: art._id,
+        userId: art.userId,
+        userName: art.userName,
+        artTitle: art.artTitle,
+        artContent: art.artContent,
+        artAddress: art.artAddress,
+        artTags: art.artTags,
+        width: art.width,
+        height: art.height
+      }
+    })
+    console.log('Image pressed:', art);
+  };
+
+  const artListView = () => {
+    return (
+      <ScrollView contentContainerStyle={styles.container_art} horizontal={false}>
+        {userArt.map((item) => (
+          <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)}>
+            <Image
+              source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
+              style={{
+                  ...getScaledDimensions(item.width, item.height, 160, 300),
+                  margin: 10,
+                  borderRadius: 10,
+                }}
+            />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    );
+  };
+
+  const mutualPreferenceView = async () => {
+    // let likesArtIds = [];
+    // let likesArts = [];
+    var likesData = await fetchLikesData();
+    if (!likesData) {
+      console.error('Error fetching likes data in isAlreadyLiked')
+    } else {
+      const userLikes = likesData.find(item => item.likeFromUserId === recData.userId);
+      let likesArtIds = userLikes ? userLikes.artistIdToLikedArts : [];
+
+      // likesArtIds = likesData.artistIdToLikedArts.{recData.userId};
+      // const filteredArts = arts.filter(art => likesArtIds.includes(art.userId));
+      // setLikesArts(filteredArts);
+    }
+    return (
+      <ScrollView contentContainerStyle={styles.container_art} horizontal={false}>
+        {/* {likesArts.map((item) => (
+          <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)}>
+            <Image
+              source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
+              style={{
+                  ...getScaledDimensions(item.width, item.height, 160, 300),
+                  margin: 10,
+                  borderRadius: 10,
+                }}
+            />
+          </TouchableOpacity>
+        ))} */}
+      </ScrollView>
+    );
+  };
+
+  const renderContent = () => {
+    if (curTag === "artList"){
+      return artListView();
+    } else if (curTag === "mutualPreference") {
+      return <Text>mutualPreference</Text>
+    } else if(curTag === "schedule") {
+      return <Text>schedule</Text>
+    }
   };
 
   return (
@@ -33,62 +194,64 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
           <Text style={{fontSize: 30, marginTop: 10}}>{recData.userName}</Text>
           <Text style={{marginTop: 5}}>{recData.userPreferenceTags.join(' | ')}</Text>
         </View>
+        
         <View style={styles.artToggle}>
           {(curTag === "artList") ? (
             <View style={styles.section}> 
               <View style={styles.touchable}>
                 <Ionicons name='reorder-three' size={30} color='#E38F9C' /> 
-                <Text style={{color: '#E38F9C', fontSize: 20}}> Art Liked </Text>
+                <Text style={{color: '#E38F9C', fontSize: 20}}> Artist Arts </Text>
               </View>
               <View style={styles.dividerTouchable} />
             </View>
           ) : (
-            <View style={styles.section}> 
+            <TouchableOpacity style={styles.section} onPress={setArtList}> 
               <View style={styles.touchable}>
                 <Ionicons name='reorder-three' size={30} color='white' /> 
-                <Text style={{color: 'white', fontSize: 20}}> Art Liked </Text>
+                <Text style={{color: 'white', fontSize: 20}}> Artist Arts </Text>
               </View>
               <View style={styles.dividerUnouchable} />
-            </View>
+            </TouchableOpacity>
           )}
 
 
           {(curTag === "mutualPreference") ? (
             <View style={styles.section}> 
               <View style={styles.touchable}>
-                <Ionicons name='reorder-three' size={30} color='#E38F9C' /> 
-                <Text style={{color: '#E38F9C', fontSize: 20}}> Art Liked </Text>
+                <Ionicons name='pie-chart-outline' size={30} color='#E38F9C' /> 
+                <Text style={{color: '#E38F9C', fontSize: 20}}> Analysis </Text>
               </View>
               <View style={styles.dividerTouchable} />
             </View>
           ) : (
-            <View style={styles.section}> 
+            <TouchableOpacity style={styles.section} onPress={setMutualPreference}> 
               <View style={styles.touchable}>
-                <Ionicons name='reorder-three' size={30} color='white' /> 
-                <Text style={{color: 'white', fontSize: 20}}> Art Liked </Text>
+                <Ionicons name='pie-chart-outline' size={30} color='white' /> 
+                <Text style={{color: 'white', fontSize: 20}}> Analysis </Text>
               </View>
               <View style={styles.dividerUnouchable} />
-            </View>
+            </TouchableOpacity>
           )}
 
-          {(curTag === "Schedule") ? (
+          {(curTag === "schedule") ? (
             <View style={styles.section}> 
               <View style={styles.touchable}>
-                <Ionicons name='reorder-three' size={30} color='#E38F9C' /> 
-                <Text style={{color: '#E38F9C', fontSize: 20}}> Art Liked </Text>
+                <Ionicons name='calendar-outline' size={30} color='#E38F9C' /> 
+                <Text style={{color: '#E38F9C', fontSize: 20}}> Schedule </Text>
               </View>
               <View style={styles.dividerTouchable} />
             </View>
           ) : (
-            <View style={styles.section}> 
+            <TouchableOpacity style={styles.section} onPress={setSchedule}> 
               <View style={styles.touchable}>
-                <Ionicons name='reorder-three' size={30} color='white' /> 
-                <Text style={{color: 'white', fontSize: 20}}> Art Liked </Text>
+                <Ionicons name='calendar-outline' size={30} color='white' /> 
+                <Text style={{color: 'white', fontSize: 20}}> Schedule </Text>
               </View>
               <View style={styles.dividerUnouchable} />
-            </View>
+            </TouchableOpacity>
           )}
         </View>
+        {renderContent()}
     </View>
     );
 };
@@ -113,7 +276,7 @@ const styles = StyleSheet.create({
   },
   artToggle: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
     width: '100%',
     height: 60,
@@ -122,9 +285,11 @@ const styles = StyleSheet.create({
   },
   touchable: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingRight: 10,
     paddingLeft: 10,
-    // marginTop: -40,
+    // width: 150,
     height: 30,
   },
   section: {
@@ -134,7 +299,7 @@ const styles = StyleSheet.create({
   },
   dividerTouchable: {
     height: 3,
-    width: 95,
+    width: 100,
     bottom: -15,
     backgroundColor: '#E38F9C',
   },
@@ -143,6 +308,17 @@ const styles = StyleSheet.create({
     width: 95,
     bottom: -15,
     backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
+  noContent: {
+    fontSize: 20,
+    marginTop: 10
+  },
+  container_art: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    justifyContent: 'center',
   },
 });
 
