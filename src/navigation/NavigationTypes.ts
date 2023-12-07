@@ -33,6 +33,7 @@ export type RootStackParamList = {
         userProfileImgAddress: string;
         userPreferenceTags: string[];
         userTags: string[];
+        screen: string,
     }},
     LoginPage: undefined,
     InboxPage: undefined,

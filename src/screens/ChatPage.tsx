@@ -145,6 +145,24 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
     })
   }
 
+  const handleMeetingClick = () => {
+    console.log(route.params.data.userName);
+    navigation.navigate('ArtistProfilePage', {
+      data: {
+        // _id: route.params.data.userId,
+        userId: route.params.data.userId,
+        userName: route.params.data.userName,
+        // userPassword: route.params.data.userPassword,
+        // userEmail: route.params.data.userEmail,
+        // userPhone: route.params.data.userPhone,
+        userProfileImgAddress: route.params.data.userProfileImgAddress,
+        userPreferenceTags: route.params.data.userPreferenceTags,
+        screen: 'schedule',
+        // tags: route.params.data.tags
+      }, 
+    })
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -161,7 +179,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
         <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
           <Ionicons name="calendar-outline" size={30} color="#3D1C51"/>
         </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity onPress={() => handleMeetingClick()}>
             <Text style={styles.meetingButton}>Request Meeting</Text>
           </TouchableOpacity>
         </View>
