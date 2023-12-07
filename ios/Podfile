@@ -59,5 +59,4 @@ target 'artemix_app' do
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
-  pod 'react-native-date-picker', :path => '../node_modules/react-native-date-picker'
 end
