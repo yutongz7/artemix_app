@@ -70,6 +70,7 @@ const RecPage: React.FC<RecPageProps> = ({ route }) => {
         userName: recData.artistUsername,
         userProfileImgAddress: recData.artistProfileImgAddress,
         userPreferenceTags: recData.artistPreferenceTags,
+        userTags: recData.artistTags,
       }
     });
   };

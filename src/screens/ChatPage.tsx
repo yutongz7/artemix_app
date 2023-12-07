@@ -15,7 +15,7 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
   const navigation = useNavigation<ChatPageNavigationProp>();
   const artistProfileImgAddress = route.params.data.userProfileImgAddress;
   const artistName = route.params.data.userName;
-  const artistTags = route.params.data.tags;
+  const artistTags = route.params.data.userPreferenceTags;
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([
     { content: 'Hello!', isCurrentUser: false },

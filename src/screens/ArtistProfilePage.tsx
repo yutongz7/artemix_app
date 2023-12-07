@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput} from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
-import ReturnTabs from "../component/ReturnTabs";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DatePicker from 'react-native-datepicker';
 
@@ -27,6 +26,8 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   const [time, setTime] = useState<string>('');
   const [dateText, setDateText] = useState<string>('');
   const [mode, setMode] = useState<string>('');
+  const [curUserTags, setCurUserTags] = useState<String[]>([]);
+  const [combineInterestList, setCombineInterestList] = useState<String[]>([]);
   
   const userName = "nathan_j";
 
@@ -53,8 +54,30 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
     }[];
   };
 
+  interface userData {
+    message: string;
+    data: {
+      userId: String,
+      userName: String,
+      userPassword: String,
+      userEmail: String,
+      userPhone: Number,
+      userProfileImgAddress: String,
+      userPreferenceTags: {type: [String], default: []},
+      tags: string[],
+    }[];
+  };
+
   const handleChat = () => {
-    navigation.navigate('ChatPage');
+    navigation.navigate('ChatPage', {
+      data: {
+        userId: recData.userId,
+        userName: recData.userName,
+        userProfileImgAddress: recData.userProfileImgAddress,
+        userPreferenceTags: recData.userPreferenceTags,
+        tags: recData.userTags,
+      }
+    });
   };
 
   const setArtList = () => {
@@ -81,6 +104,16 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       .catch((error) => console.error('Error fetching arts:', error));
   }, []);
 
+  // useEffect(() => {
+  //   fetch(`http://localhost:4000/users?where={"userId":"${userName}"}`)
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       console.log("data[0].tags = ", data[0].tags)
+  //       setCurUserTags(data[0].tags);
+  //     })
+  //     .catch((error) => console.error('Error fetching arts:', error));
+  // });
+
   useEffect(() => {
     const filtered = arts.filter(art => art.userId === recData.userId);
     setUserArt(filtered);
@@ -91,8 +124,18 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
       const data: likesData = await response.json();
       return data.data;
-    } catch (error) {
+    } catch(error) {
       console.error('Error fetching likes:', error);
+    }
+  };
+
+  const fetchCurUserData = async() => {
+    try {
+      const response = await fetch(`http://localhost:4000/users?where={"userId":"${userName}"}`);
+      const data: userData = await response.json();
+      return data.data;
+    } catch(error) {
+      console.error("fetchCurUserData error: ", console.error());
     }
   };
 
@@ -151,6 +194,10 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       </ScrollView>
     );
   };
+  const goBack = () => {
+    navigation.goBack();
+  };
+
 
   useEffect(() => {
     const getMutualData = async() => {
@@ -177,18 +224,45 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       }
     };
     getMutualData();
-  })
+  });
+
+  useEffect(() => {
+    const getInterestList = async() => {
+      var curUser = await fetchCurUserData();
+      if (!curUser) {
+        console.error("fetchCurUserData fail")
+      } else {
+        // console.log("curUser tags: ", curUser[0].tags);
+        setCurUserTags(curUser[0].tags);
+        let combineInterests = [...new Set([...recData.userTags, ...curUserTags])];
+        setCombineInterestList(combineInterests);
+      }
+    };
+    getInterestList();
+  }, [userName])
 
   useEffect(() => {
     fetchLikesData();
-  }, [curTag, recData.userId, arts])
+  }, [curTag, recData.userId, arts]);
 
   const mutualPreferenceView = () => {
     return (
       <View>
+         <View style={styles.container_combineTopic}>
+          <View style={styles.container_textSubtitle}>
+            <Text style={styles.textSubtitle}>Combined interests of you and the artist::</Text>
+            <View style={styles.divider} />
+          </View>
+          <View style={styles.topicContainer}>
+            {combineInterestList.map((topic, index) => (
+              <Text key={index} style={styles.topicText}> #{topic} </Text>
+            ))}
+          </View>
+        </View>
         <View style={styles.container_analysis}>
           <View style={styles.container_textSubtitle}>
-            <Text style={styles.textSubtitle}>Posts you've liked from this artist:</Text>
+            <Text style={styles.textSubtitle}>Arts you liked from the artist:</Text>
+            <View style={styles.divider} />
           </View>
           <ScrollView contentContainerStyle={styles.container_mutualArt} horizontal={true}>
             {likesArts.map((item) => (
@@ -207,11 +281,12 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
         </View>
         <View style={styles.container_analysis}>
           <View style={styles.container_textSubtitle}>
-            <Text style={styles.textSubtitle}>Posts this artist has liked from you:</Text>
+            <Text style={styles.textSubtitle}>Arts the artist has liked from you:</Text>
+            <View style={styles.divider} />
           </View>
           <View style={styles.textMutualArt}>
-            <Text>This artist hasn't liked your art yet. </Text>
-            <Text>Chat with this artist to discuss your art!</Text>
+            <Text style={styles.textText} >This artist hasn't liked your art yet. </Text>
+            <Text style={styles.textText} >Chat with this artist to discuss your art! 🤗</Text>
           </View>
         </View>
       </View>
@@ -219,7 +294,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   };
 
   const handleSentMeeting = () => {
-    console.log(recData);
+    // console.log(recData);
     setMsgData('');
     // clear the date and time selector
   }
@@ -325,7 +400,15 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
 
   return (
       <View style={styles.container}>
-        <ReturnTabs/>
+        {/* BackIcon */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.iconView} onPress={goBack}>
+            <Ionicons name='chevron-back-circle-outline' size={35} color='#5364B7' />
+          </TouchableOpacity>
+          <View style={styles.textHeader}>
+            <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Artist Profile</Text>
+          </View>
+        </View>
         <View style={styles.bioInfo}>
           <Image
                   source={{uri: `http://localhost:4000/images/${recData.userId}.png`}}
@@ -337,7 +420,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
               <Ionicons name='chatbubbles' size={30} color='#E38F9C' />
             </TouchableOpacity>
           </View>
-          <Text style={{marginTop: 5}}>{recData.userPreferenceTags.join(' | ')}</Text>
+          <Text style={{fontSize: 18, fontWeight: '300', marginTop: 5}}>{recData.userPreferenceTags.join(' | ')}</Text>
         </View>
         
         <View style={styles.artToggle}>
@@ -406,16 +489,48 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: 100,
+    marginTop: 0,
   },
   textSubtitle: {
     // color: '#E38F9C', 
     fontSize: 20,
     textAlign: 'left',
-    fontWeight: '400',
+    fontWeight: '500',
+  },
+  divider: {
+    height: 5,
+    width: 400,
+    marginleft: 0,
+    backgroundColor: '#E38F9C',
+  },
+  iconView: {
+    // backgroundColor: 'red', 
+    width: 40,
+    marginRight: 40,
+    marginLeft: 8,
+    left: 0,
+    marginBottom: 10,
+  },
+  textHeader: {
+    // backgroundColor: 'green',
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 20,
+    marginRight: 100,
+    marginBottom: 10,
+  },
+  header: {
+    width: '100%',
+    backgroundColor: 'white',
+    // height: 90,
+    paddingTop: 60,
+    flexDirection: 'row',
+    // alignItems: 'center',
+    justifyContent: 'center',
   },
   container_textSubtitle: {
-    marginTop: 10,
+    marginTop: 5,
     width: '100%',
     marginLeft: 20,
     // backgroundColor: 'blue'
@@ -426,12 +541,21 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start'
   },
   container_analysis: {
-    marginTop: 10,
+    // marginTop: 10,
     marginBottom: 10,
     flexDirection: 'column',
     justifyContent: 'flex-start', 
     alignItems: 'center',
     height: 300,
+    // backgroundColor: 'red'
+  },
+  container_combineTopic: {
+    marginTop: 10,
+    marginBottom: 10,
+    flexDirection: 'column',
+    justifyContent: 'flex-start', 
+    alignItems: 'center',
+    height: 80,
     // backgroundColor: 'red'
   },
   bioTop: {
@@ -464,13 +588,30 @@ const styles = StyleSheet.create({
     // width: 150,
     height: 30,
   },
+  topicContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
+    // marginLeft: 20,
+    width: 400,
+    // backgroundColor: 'red',
+  },
+  topicText: {
+    color: '#5364B7',
+    fontSize: 15,
+    fontFamily: 'QuattrocentoSans-Regular',
+  },
+  textText: {
+    fontSize: 15,
+    fontFamily: 'QuattrocentoSans-Regular',
+  },
   section: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
   textMutualArt: {
-    marginTop: 20,
+    marginTop: 10,
   },
   dividerTouchable: {
     height: 3,
@@ -494,7 +635,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 10,
     justifyContent: 'center',
-    height: 600,
+    // height: 600,
   },
   container_mutualArt: {
     flexDirection: 'row',

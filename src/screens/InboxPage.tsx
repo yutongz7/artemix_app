@@ -32,12 +32,8 @@ const InboxPage: React.FC = () => {
   const handleChat = (artist: ArtistData) => {
     navigation.navigate('ChatPage', {
       data: {
-        _id: artist._id,
         userId: artist.userId,
         userName: artist.userName,
-        userPassword: artist.userPassword,
-        userEmail: artist.userEmail,
-        userPhone: artist.userPhone,
         userProfileImgAddress: artist.userProfileImgAddress,
         userPreferenceTags: artist.userPreferenceTags,
         tags: artist.tags,
@@ -52,6 +48,7 @@ const InboxPage: React.FC = () => {
         userName: artist.userName,
         userProfileImgAddress: artist.userProfileImgAddress,
         userPreferenceTags: artist.userPreferenceTags,
+        userTags: artist.tags,
       }
     });
   };
@@ -151,7 +148,7 @@ const InboxPage: React.FC = () => {
     fetchRecommendArtist();
     getArtistData();
     // console.log("pendingArtists = ", pendingArtists);
-  }, [artistsMap])
+  }, [artistsMap]);
 
   return (
     <View style={styles.overallStructure}>
@@ -164,16 +161,19 @@ const InboxPage: React.FC = () => {
           {inboxArtists?.map((item) => (
             <TouchableOpacity key={item._id} onPress={() => handleChat(item)}>
               <View style={styles.itemContainer}>
-                <Image
-                  source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
-                  style={styles.imgStyle}
-                />
+                <TouchableOpacity key={item._id} onPress={() => handleArtistsProfile(item)}>
+                    <Image
+                      source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
+                      style={styles.imgStyle}
+                    />
+                  </TouchableOpacity>
                 <View style={styles.itemInfo}>
                   <Text style={styles.nameText}>{item.userName}</Text>
                   <Text style={styles.tagsText}>{item.userPreferenceTags?.join(' | ')}</Text>
                   <Text style={styles.textText}>Continue chat</Text>
                 </View>
               </View>
+              <View style={styles.chatDivider} />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -293,11 +293,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tagsText: {
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: '200',
   },
   textText: {
-    fontSize: 13,
+    fontSize: 16,
     color: '#7E397C'
   }
 });

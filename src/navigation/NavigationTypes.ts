@@ -25,22 +25,21 @@ export type RootStackParamList = {
         artTags: {type: [String], default: []};
         width: number;
         height: number;
+        artistTags: string[];
     }};
     ArtistProfilePage: { data: {
         userId: string;
         userName: string;
         userProfileImgAddress: string;
         userPreferenceTags: string[];
+        userTags: string[];
     }},
     LoginPage: undefined,
     InboxPage: undefined,
     ChatPage: {
         data: {
-            _id: string;
             userId: string;
             userName: string;
-            userPassword: string;
-            userEmail: string;
             userPhone: number;
             userProfileImgAddress: string;
             userPreferenceTags: string[];
