@@ -205,7 +205,7 @@ const RegistrationPage = () => {
                 selectedPreferences.includes('water color') && styles.selectedPreferenceButton,
               ]}
               onPress={() => handlePreferenceSelect('water color')}>
-              <Text style={styles.preferenceButtonText}>Water Color</Text>
+              <Text style={styles.preferenceButtonText}>water color</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
