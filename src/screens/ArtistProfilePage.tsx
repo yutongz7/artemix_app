@@ -202,33 +202,57 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
     navigation.goBack();
   };
 
+  const getMutualData = async() => {
+    // console.log("getMutualData")
+    let filteredArts: Art[] = [];
+    var likesData = await fetchLikesData();
+    if (!likesData) {
+      console.error('Error fetching likes data in isAlreadyLiked')
+    } else {
+      // console.log("getMutualData: get the data");
+      // console.log("likesData: ", likesData);
+      // console.log("userId = ", recData.userId)
+      const userLikes = likesData[0].artistIdToLikedArts;
+      // console.log("userLikes = ", userLikes);
+      // console.log("recData.userId = ", recData.userId)
+      const newEntries = Object.entries(userLikes) as [string, string[]][];
+      const newMap = new Map<string, string[]>(newEntries);
+      const likesArtIds = userLikes ? newMap.get(recData.userId) : [];
+      // console.log("likesArtIds = ", likesArtIds);
+      filteredArts = arts.filter(art => likesArtIds?.includes(art._id));
+      // console.log("filteredArts = ", filteredArts);
+      setLikesArts(filteredArts);
+      // console.log("likesArts = ", likesArts);
+    }
+  };
 
-  useEffect(() => {
-    const getMutualData = async() => {
-      // console.log("getMutualData")
-      let filteredArts: Art[] = [];
-      var likesData = await fetchLikesData();
-      if (!likesData) {
-        console.error('Error fetching likes data in isAlreadyLiked')
-      } else {
-        // console.log("getMutualData: get the data");
-        // console.log("likesData: ", likesData);
-        // console.log("userId = ", recData.userId)
-        const userLikes = likesData[0].artistIdToLikedArts;
-        // console.log("userLikes = ", userLikes);
-        // console.log("recData.userId = ", recData.userId)
-        const newEntries = Object.entries(userLikes) as [string, string[]][];
-        const newMap = new Map<string, string[]>(newEntries);
-        const likesArtIds = userLikes ? newMap.get(recData.userId) : [];
-        // console.log("likesArtIds = ", likesArtIds);
-        filteredArts = arts.filter(art => likesArtIds?.includes(art._id));
-        // console.log("filteredArts = ", filteredArts);
-        setLikesArts(filteredArts);
-        // console.log("likesArts = ", likesArts);
-      }
-    };
-    getMutualData();
-  });
+
+  // useEffect(() => {
+  //   const getMutualData = async() => {
+  //     // console.log("getMutualData")
+  //     let filteredArts: Art[] = [];
+  //     var likesData = await fetchLikesData();
+  //     if (!likesData) {
+  //       console.error('Error fetching likes data in isAlreadyLiked')
+  //     } else {
+  //       // console.log("getMutualData: get the data");
+  //       // console.log("likesData: ", likesData);
+  //       // console.log("userId = ", recData.userId)
+  //       const userLikes = likesData[0].artistIdToLikedArts;
+  //       // console.log("userLikes = ", userLikes);
+  //       // console.log("recData.userId = ", recData.userId)
+  //       const newEntries = Object.entries(userLikes) as [string, string[]][];
+  //       const newMap = new Map<string, string[]>(newEntries);
+  //       const likesArtIds = userLikes ? newMap.get(recData.userId) : [];
+  //       // console.log("likesArtIds = ", likesArtIds);
+  //       filteredArts = arts.filter(art => likesArtIds?.includes(art._id));
+  //       // console.log("filteredArts = ", filteredArts);
+  //       setLikesArts(filteredArts);
+  //       // console.log("likesArts = ", likesArts);
+  //     }
+  //   };
+    
+  // });
 
   useEffect(() => {
     const getInterestList = async() => {
@@ -250,6 +274,9 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   }, [curTag, recData.userId, arts]);
 
   const mutualPreferenceView = () => {
+    if (likesArts.length === 0) {
+      getMutualData();
+    }
     return (
       <View>
          <View style={styles.container_combineTopic}>
@@ -433,7 +460,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
         {/* BackIcon */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.iconView} onPress={goBack}>
-            <Ionicons name='chevron-back-circle-outline' size={35} color='#5364B7' />
+            <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
           </TouchableOpacity>
           <View style={styles.textHeader}>
             <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Artist Profile</Text>

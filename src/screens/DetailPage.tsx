@@ -295,7 +295,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
             onPress={() => navigation.goBack()}/> */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconView} onPress={goBack}>
-          <Ionicons name='chevron-back-circle-outline' size={35} color='#5364B7' />
+          <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
         </TouchableOpacity>
         <View style={styles.textHeader}>
           <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Detail Page</Text>

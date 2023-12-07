@@ -161,8 +161,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
         // userPhone: route.params.data.userPhone,
         userProfileImgAddress: route.params.data.userProfileImgAddress,
         userPreferenceTags: route.params.data.userPreferenceTags,
-        screen: 'schedule',
-        // tags: route.params.data.tags
+        userTags: route.params.data.tags
       }, 
     })
   }
@@ -172,7 +171,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
       {/* BackIcon */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconView} onPress={goBack}>
-          <Ionicons name='chevron-back-circle-outline' size={35} color='#5364B7' />
+          <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
         </TouchableOpacity>
         <View style={styles.textHeader}>
           <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Direct Message</Text>
@@ -189,12 +188,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
           <Text style={styles.userTags}>{artistTags.join(', ')}</Text>
         </View>
         <View style={styles.headerRightContainer}>
-        <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
+        {/* <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
           <Ionicons name="calendar-outline" size={30} color="#3D1C51"/>
-        </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleMeetingClick()}>
+        </TouchableOpacity> */}
+          {/* <TouchableOpacity onPress={() => handleMeetingClick()}>
             <Text style={styles.meetingButton}>Request Meeting</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
       <View style={styles.thinBar} />

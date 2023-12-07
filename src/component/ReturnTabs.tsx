@@ -16,7 +16,7 @@ export default function ReturnTabs() {
   return (
     <View style={styles.iconView}>
         <TouchableOpacity onPress={goBack}>
-            <Ionicons  name='chevron-back-circle-outline' size={40} color='#5364B7'/>
+            <Ionicons  name='chevron-back-outline' size={40} color='#5364B7'/>
         </TouchableOpacity>
     </View>
   );
