@@ -39,6 +39,7 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
     updateRecData();
   };
 
+
   const updateRecData = async () => {
     const artistId = route.params.data.userId;
     const currUser = "nathan_j";
@@ -50,7 +51,6 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
         recommendArtistIds: Map<string, string>;
       }[];
     };
-
 
     try {
       const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${currUser}"}`);
@@ -82,14 +82,31 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
     }
   };
 
+  const handleProfileClick = () => {
+    console.log(route.params.data.userName);
+    navigation.navigate('ArtistProfilePage', {
+      data: {
+        _id: route.params.data.userId,
+        userId: route.params.data.userId,
+        userName: route.params.data.userName,
+        userPassword: route.params.data.userPassword,
+        userEmail: route.params.data.userEmail,
+        userPhone: route.params.data.userPhone,
+        userProfileImgAddress: route.params.data.userProfileImgAddress,
+        userPreferenceTags: route.params.data.userPreferenceTags,
+        tags: route.params.data.tags
+      }
+    })
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
       <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 0 }}
             onPress={() => navigation.goBack()}/>
-        <View>
+        <TouchableOpacity onPress={() => handleProfileClick()}>
           <Image source={{ uri: `http://localhost:4000/images/${artistProfileImgAddress}` }} style={{ width: 70, height: 70, borderRadius: 200 }} />
-        </View>
+        </TouchableOpacity>
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{artistName}</Text>
           <Text style={styles.userTags}>{artistTags.join(', ')}</Text>
