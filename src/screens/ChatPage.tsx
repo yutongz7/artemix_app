@@ -18,8 +18,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
   const artistName = route.params.data.userName;
   const artistTags = route.params.data.tags;
   const artistProfileImgAddress = route.params.data.userProfileImgAddress;
-  // const [chatMessages, setChatMessages] = useState<{ [userId: string]: Message[] }>({});
-  // const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
 
@@ -78,9 +76,25 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
 
       setChatMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage('');
-      // TODO: Add logic for sending the message to the other person
+
+      try {
+        await fetch(`http://localhost:4000/chats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ChatId: artistId,
+            CurrUserId: 'nathan_j',
+            ArtistIdToChats: { [artistId]: [...chatMessages, newMessage] },
+          }),
+        });
+
+        updateRecData();
+      } catch (error) {
+        console.error('Error sending chat message:', error);
+      }
     }
-    updateRecData();
   };
 
   const updateRecData = async () => {
