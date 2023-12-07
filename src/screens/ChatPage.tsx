@@ -16,7 +16,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
   const navigation = useNavigation<ChatPageNavigationProp>();
   const artistId = route.params.data.userId;
   const artistName = route.params.data.userName;
-  const artistTags = route.params.data.tags;
+  const artistTags = route.params.data.userPreferenceTags;
   const artistProfileImgAddress = route.params.data.userProfileImgAddress;
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
@@ -140,7 +140,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
         // userPhone: route.params.data.userPhone,
         userProfileImgAddress: route.params.data.userProfileImgAddress,
         userPreferenceTags: route.params.data.userPreferenceTags,
-        // tags: route.params.data.tags
+        userTags: route.params.data.tags
       }
     })
   };
@@ -299,7 +299,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   userInfo: {
-
+    // marginLeft: 70,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    // backgroundColor: 'red'
   }, 
   headerRightContainer: {
     alignItems: 'center',
@@ -310,8 +313,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   userTags: {
-    fontSize: 13,
-    marginTop: 5,
+    fontSize: 18,
+    marginTop: 0,
+    fontWeight: '200',
+    // backgroundColor: 'blue'
   },
   meetingButton: {
     fontSize: 10,

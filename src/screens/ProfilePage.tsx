@@ -17,12 +17,15 @@ interface Art {
 }
 
 interface likesData {
-  _id: string;
-  likeFromUserId: string;
-  artistIdToLikedArts: Map<string, string[]>;
-  __v: number;
-  likedArtIds: string[];
-}
+  message: string;
+  data: {
+    _id: string;
+    likeFromUserId: string;
+    artistIdToLikedArts: Map<string, string[]>;
+    __v: number;
+    likedArtIds: string[];
+  }[];
+};
 
 type ProfilePageNavigationProp = NavigationProp<RootStackParamList, 'ProfilePage'>;
 
@@ -31,11 +34,22 @@ const ProfilePage: React.FC = () => {
   const [showUserArt, setShowUserArt]= useState(true);
   const [arts, setArts] = useState<Art[]>([]); // for all art
   const [userArt, setUserArt] = useState<Art []>([]);
-  const [likesData, setLikesData] = useState<likesData []>([]);
-  const [likedArt, setLikedArt] = useState<Art []>([]);
+  const [curLikedArt, setCurLikedArt] = useState<Art []>([]);
+  const [curArtistIds, setCurArtistIds] = useState<String[]>([]);
+  const [curTag, setCurTag]= useState<String>("YourArts"); // YourArts / LikedArts / Artists
 
   const toggleView = () => {
     setShowUserArt(!showUserArt);
+  };
+
+  const setYourArts = () => {
+    setCurTag("YourArts")
+  };
+  const setLikedArts = () => {
+    setCurTag("LikedArts")
+  };
+  const setArtists = () => {
+    setCurTag("Artists")
   };
 
   // fetch art
@@ -59,29 +73,33 @@ const ProfilePage: React.FC = () => {
     setUserArt(filtered);
   }, [arts, userName]);
 
-  // fetch user likes data
+  const fetchLikesData = async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
+      const data: likesData = await response.json();
+      return data.data;
+    } catch(error) {
+      console.error('Error fetching likes:', error);
+    }
+  };
+
   useEffect(() => {
-    fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`)
-      .then((response) => response.json())
-      .then((data) => {
-        const likesProcessing = data.data.map((likes: likesData) => ({
-          ...likes,
-          _id: likes._id,
-          __v: likes.__v,
-          likeFromUserId: likes.likeFromUserId,
-          artistIdToLikedArts: likes.artistIdToLikedArts,
-          likedArtIds: likes.likedArtIds
-        }));
-        setLikesData(likesProcessing);
-        console.log("likes data: ", likesData);
-        const buffer = arts.filter((art) => 
-          likesData[0].likedArtIds.includes(art._id)
-        );
-        setLikedArt(buffer);
-        console.log("liked art: ", likedArt);
-      })
-      .catch((error) => console.error('Error fetching likes:', error));
-  }, []);
+    const getLikedlData = async() => {
+      let filteredArts: Art[] = [];
+      var likesData = await fetchLikesData();
+      if (!likesData) {
+        console.error('Error fetching likes data in isAlreadyLiked')
+      } else {
+        const userLikedIds = likesData[0].likedArtIds;
+        const userLikes = likesData[0].artistIdToLikedArts;
+        const artistConnected = Array.from(userLikes.keys());
+        setCurArtistIds(artistConnected);
+        filteredArts = arts.filter(art => userLikedIds?.includes(art._id));
+        setCurLikedArt(filteredArts);
+      }
+    };
+    getLikedlData();
+  });
 
   // Function to calculate scaled dimensions while maintaining aspect ratio
   const getScaledDimensions = (originalWidth: number, originalHeight: number, maxWidth: number, maxHeight: number) => {
@@ -120,7 +138,7 @@ const ProfilePage: React.FC = () => {
         height: art.height
       }
     })
-    console.log('Image pressed:', art);
+    // console.log('Image pressed:', art);
   };
 
   const handleSettingsPress = () => {
@@ -129,7 +147,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (showUserArt) {
+    if (curTag === 'YourArts') {
       // Render user's art posts
       return (
         <ScrollView contentContainerStyle={styles.container} horizontal={false}>
@@ -154,14 +172,14 @@ const ProfilePage: React.FC = () => {
           )}
         </ScrollView>
       );
-    } else {
+    } else if (curTag === 'LikedArts'){
       // Render liked posts
       return (
         <ScrollView contentContainerStyle={styles.container} horizontal={false}>
-          {(likedArt.length === 0) ? (
+          {(curLikedArt.length === 0) ? (
             <Text style={styles.noContent}>No likes yet.</Text>
           ) : (
-            likedArt.map((item) => (
+            curLikedArt.map((item) => (
               <TouchableOpacity key={item._id} onPress={() => handleImagePress(item)}>
                 <Image
                   source={{ uri: `http://localhost:4000/images/${item.artAddress}` }}
@@ -176,6 +194,8 @@ const ProfilePage: React.FC = () => {
             )}
         </ScrollView>
       );
+    } else if (curTag === 'Artists') {
+      <Text>Artists List</Text>
     }
   };
 
@@ -196,31 +216,61 @@ const ProfilePage: React.FC = () => {
         </View>
       </View>
       <View style={styles.artToggle}>
+          {(curTag === "YourArts") ? (
+            <View style={styles.section}> 
+              <View style={styles.touchable}>
+                <Ionicons name='reorder-three' size={30} color='#E38F9C' /> 
+                <Text style={{color: '#E38F9C', fontSize: 20}}> Your Arts </Text>
+              </View>
+              <View style={styles.dividerTouchable} />
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.section} onPress={setYourArts}> 
+              <View style={styles.touchable}>
+                <Ionicons name='reorder-three' size={30} color='white' /> 
+                <Text style={{color: 'white', fontSize: 20}}> Your Arts </Text>
+              </View>
+              <View style={styles.dividerUnouchable} />
+            </TouchableOpacity>
+          )}
 
-        {showUserArt ? (
-          <View style={styles.touchable}>
-            <Ionicons name='reorder-three' size={30} color='#E38F9C'/>
-            <Text style={{color: '#E38F9C', fontSize: 20}}> Your Art </Text>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.touchable} onPress={toggleView}>
-            <Ionicons name='reorder-three' size={30} color='white'/>
-            <Text style={{color: 'white', fontSize: 20}}> Your Art </Text>
-          </TouchableOpacity>
-        )}
 
-        {!showUserArt ? (
-          <View style={styles.touchable}>
-            <Ionicons name='heart-outline' size={30} color='#E38F9C' /> 
-            <Text style={{color: '#E38F9C', fontSize: 20}}> Art Liked </Text>
-          </View>
-        ) : (
-          <TouchableOpacity style={styles.touchable} onPress={toggleView}>
-            <Ionicons name='heart-outline' size={30} color='white' /> 
-            <Text style={{color: 'white', fontSize: 20}}> Art Liked </Text>
-          </TouchableOpacity>
-        )} 
-      </View>
+          {(curTag === "LikedArts") ? (
+            <View style={styles.section}> 
+              <View style={styles.touchable}>
+                <Ionicons name='heart-outline' size={30} color='#E38F9C' /> 
+                <Text style={{color: '#E38F9C', fontSize: 20}}> Liked Arts </Text>
+              </View>
+              <View style={styles.dividerTouchable} />
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.section} onPress={setLikedArts}> 
+              <View style={styles.touchable}>
+                <Ionicons name='heart-outline' size={30} color='white' /> 
+                <Text style={{color: 'white', fontSize: 20}}> Liked Arts </Text>
+              </View>
+              <View style={styles.dividerUnouchable} />
+            </TouchableOpacity>
+          )}
+
+          {(curTag === "Artists") ? (
+            <View style={styles.section}> 
+              <View style={styles.touchable}>
+                <Ionicons name='people-outline' size={30} color='#E38F9C' /> 
+                <Text style={{color: '#E38F9C', fontSize: 20}}> Artists </Text>
+              </View>
+              <View style={styles.dividerTouchable} />
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.section} onPress={setArtists}> 
+              <View style={styles.touchable}>
+                <Ionicons name='people-outline' size={30} color='white' /> 
+                <Text style={{color: 'white', fontSize: 20}}> Artists </Text>
+              </View>
+              <View style={styles.dividerUnouchable} />
+            </TouchableOpacity>
+          )}
+        </View>
       {renderContent()}
     </View>
 
@@ -241,7 +291,7 @@ const styles = StyleSheet.create({
   },
   artToggle: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     alignItems: 'center',
     width: '100%',
     height: 60,
@@ -250,8 +300,12 @@ const styles = StyleSheet.create({
   },
   touchable: {
     flexDirection: 'row',
-    paddingRight: 40,
-    paddingLeft: 40
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingRight: 10,
+    paddingLeft: 10,
+    // width: 150,
+    height: 30,
   },
   activeText: {
     color: '#E38F9C', 
@@ -273,6 +327,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 10
   },
+  dividerTouchable: {
+    height: 3,
+    width: 100,
+    bottom: -15,
+    backgroundColor: '#E38F9C',
+  },
+  dividerUnouchable: {
+    height: 3,
+    width: 95,
+    bottom: -15,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+  },
   settingsContainer: {
     position: 'absolute', 
     bottom: 80, 
@@ -283,7 +349,12 @@ const styles = StyleSheet.create({
     borderRadius: 200,
     justifyContent: 'center',
     alignItems: 'center'
-  }
+  },
+  section: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
 });
 
 export default ProfilePage;

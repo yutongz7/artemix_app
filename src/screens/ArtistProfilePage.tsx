@@ -254,7 +254,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       <View>
          <View style={styles.container_combineTopic}>
           <View style={styles.container_textSubtitle}>
-            <Text style={styles.textSubtitle}>Combined interests of you and the artist::</Text>
+            <Text style={styles.textSubtitle}>Combined interests of you and the artist:</Text>
             <View style={styles.divider} />
           </View>
           <View style={styles.topicContainer}>
@@ -414,12 +414,6 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   }
 
   useEffect(() => {
-    // Set the current tab based on the screen parameter
-    const initialTab = route.params?.data?.screen || 'artList';
-    setCurTag(initialTab);
-  }, [route.params]);
-
-  useEffect(() => {
     const filtered = arts.filter(art => art.userId === recData.userId);
     setUserArt(filtered);
   }, [arts, recData.userId]);
@@ -445,6 +439,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
             <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Artist Profile</Text>
           </View>
         </View>
+
         <View style={styles.bioInfo}>
           <Image
                   source={{uri: `http://localhost:4000/images/${recData.userId}.png`}}
@@ -648,6 +643,11 @@ const styles = StyleSheet.create({
   },
   textMutualArt: {
     marginTop: 10,
+    width: '90%',
+    marginHorizontal: 60,
+    justifyContent: 'flex-start',
+    alignContent: 'flex-start',
+    // backgroundColor: 'red'
   },
   dividerTouchable: {
     height: 3,
