@@ -414,6 +414,12 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   }
 
   useEffect(() => {
+    // Set the current tab based on the screen parameter
+    const initialTab = route.params?.data?.screen || 'artList';
+    setCurTag(initialTab);
+  }, [route.params]);
+
+  useEffect(() => {
     const filtered = arts.filter(art => art.userId === recData.userId);
     setUserArt(filtered);
   }, [arts, recData.userId]);

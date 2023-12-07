@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
+import { RouteProp, useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ChatPageRouteProp = RouteProp<RootStackParamList, 'ChatPage'>;
 type ChatPageNavigationProp = NavigationProp<RootStackParamList, 'ChatPage'>;
@@ -11,16 +12,49 @@ interface ChatPageProps {
   route: ChatPageRouteProp;
 }
 
-const ChatPage: React.FC<ChatPageProps> = ({route}) => {
+const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
   const navigation = useNavigation<ChatPageNavigationProp>();
-  const artistProfileImgAddress = route.params.data.userProfileImgAddress;
+  const artistId = route.params.data.userId;
   const artistName = route.params.data.userName;
-  const artistTags = route.params.data.userPreferenceTags;
+  const artistTags = route.params.data.tags;
+  const artistProfileImgAddress = route.params.data.userProfileImgAddress;
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
-  const [chatMessages, setChatMessages] = useState([
-    { content: 'Hello!', isCurrentUser: false },
-    { content: 'Love your profile. How do you compose your pictures?', isCurrentUser: false },
-  ]);
+
+  interface Message {
+    content: string;
+    isCurrentUser: boolean;
+  }
+  
+  const fetchChatMessages = async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/chats?where={"ChatId":"${artistId}"}`);
+      const data = await response.json();
+  
+      if (data.data.length > 0) {
+        const artistIdToChats = data.data[0].ArtistIdToChats;
+        const storedMessages = artistIdToChats[artistId] || [];
+        const messages = [...storedMessages];
+        setChatMessages(messages);
+      }
+    } catch (error) {
+      console.error('Error fetching chat messages:', error);
+    }
+  };
+  
+  useEffect(() => {
+    const otherUserMessages: Message[] = [
+      { content: 'Hello!', isCurrentUser: false },
+      { content: 'Love your profile! How do you compose your pictures?', isCurrentUser: false },
+    ];
+    setChatMessages(otherUserMessages);
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchChatMessages();
+    }, [artistId])
+  );
 
   const renderMessage = (content: string, isCurrentUser: boolean) => {
     return (
@@ -30,37 +64,49 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
     );
   };
 
-  const handleSendMessage = () => {
-    if (message.trim() !== '') {
-      setChatMessages([...chatMessages, { content: message, isCurrentUser: true }]);
-      setMessage('');
-      // TODO: Add logic for sending the message to the other person
-    }
-    updateRecData();
+  const renderMessages = () => {
+    return chatMessages.map((msg, index) => (
+      <View key={index}>{renderMessage(msg.content, msg.isCurrentUser)}</View>
+    ));
   };
 
+  const handleSendMessage = async () => {
+    if (message.trim() !== '') {
+      const newMessage: Message = { content: message, isCurrentUser: true };
+
+      setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessage('');
+
+      try {
+        await fetch(`http://localhost:4000/chats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ChatId: artistId,
+            CurrUserId: 'nathan_j',
+            ArtistIdToChats: { [artistId]: [...chatMessages, newMessage] },
+          }),
+        });
+
+        updateRecData();
+      } catch (error) {
+        console.error('Error sending chat message:', error);
+      }
+    }
+  };
 
   const updateRecData = async () => {
-    const artistId = route.params.data.userId;
     const currUser = "nathan_j";
-    interface recommendArtistData {
-      message: string;
-      data: {
-        _id: string;
-        userId: String;
-        recommendArtistIds: Map<string, string>;
-      }[];
-    };
 
     try {
       const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${currUser}"}`);
-      const data: recommendArtistData = await response.json();
+      const data: { message: string; data: { _id: string; userId: String; recommendArtistIds: Map<string, string> }[] } = await response.json();
 
       if (data.data.length > 0) {
         const currentRecommendations = new Map(Object.entries(data.data[0].recommendArtistIds));
-        console.log(currentRecommendations);
         currentRecommendations.set(artistId, 'chat');
-        console.log(currentRecommendations);
 
         const newRecData = {
           userId: currUser,
@@ -86,11 +132,15 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
     console.log(route.params.data.userName);
     navigation.navigate('ArtistProfilePage', {
       data: {
+        // _id: route.params.data.userId,
         userId: route.params.data.userId,
         userName: route.params.data.userName,
+        // userPassword: route.params.data.userPassword,
+        // userEmail: route.params.data.userEmail,
+        // userPhone: route.params.data.userPhone,
         userProfileImgAddress: route.params.data.userProfileImgAddress,
         userPreferenceTags: route.params.data.userPreferenceTags,
-        userTags: route.params.data.tags
+        // tags: route.params.data.tags
       }
     })
   };
@@ -98,6 +148,24 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
   const goBack = () => {
     navigation.goBack();
   };
+
+  const handleMeetingClick = () => {
+    console.log(route.params.data.userName);
+    navigation.navigate('ArtistProfilePage', {
+      data: {
+        // _id: route.params.data.userId,
+        userId: route.params.data.userId,
+        userName: route.params.data.userName,
+        // userPassword: route.params.data.userPassword,
+        // userEmail: route.params.data.userEmail,
+        // userPhone: route.params.data.userPhone,
+        userProfileImgAddress: route.params.data.userProfileImgAddress,
+        userPreferenceTags: route.params.data.userPreferenceTags,
+        screen: 'schedule',
+        // tags: route.params.data.tags
+      }, 
+    })
+  }
 
   return (
     <View style={styles.container}>
@@ -124,7 +192,7 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
         <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage}>
           <Ionicons name="calendar-outline" size={30} color="#3D1C51"/>
         </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity onPress={() => handleMeetingClick()}>
             <Text style={styles.meetingButton}>Request Meeting</Text>
           </TouchableOpacity>
         </View>
@@ -132,9 +200,7 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
       <View style={styles.thinBar} />
       {/* Chat messages */}
       <ScrollView style={styles.messagesContainer}>
-        {chatMessages.map((msg, index) => (
-          <View key={index}>{renderMessage(msg.content, msg.isCurrentUser)}</View>
-        ))}
+        {renderMessages()}
       </ScrollView>
       {/* Input bar */}
       <View style={styles.inputContainer}>
