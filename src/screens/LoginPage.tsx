@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { Image, View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 
@@ -44,7 +44,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Artemix</Text>
+      <Image source={require('../assets/logo.png')} style={{marginBottom: 15}}></Image>
       <TextInput
         style={styles.input}
         placeholder="User ID"
@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     fontFamily: 'QuattrocentoSans-Regular',
+    backgroundColor: 'white',
   },
   title: {
     fontSize: 24,

@@ -135,6 +135,30 @@ const InboxPage: React.FC = () => {
     setInboxArtists(inboxList);
   }
 
+  const [lastMessages, setLastMessages] = useState<Map<string, string>>(new Map());
+
+  const fetchLastMessages = async () => {
+    const promises = inboxArtists.map(async (artist) => {
+      try {
+        const response = await fetch(`http://localhost:4000/chats?where={"CurrUserId":"${userName}","ArtistIdToChats.${artist.userId}": { "$exists": true }}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        // console.log(data.data[0]?.ArtistIdToChats[artist.userId].slice(-1)[0]?.content);
+        const lastMessage = data.data[0]?.ArtistIdToChats[artist.userId].slice(-1)[0]?.content || 'No messages';
+        return { userId: artist.userId, lastMessage };
+      } catch (error) {
+        // no chats in db
+        return { userId: artist.userId, lastMessage: 'Love your profile! How do you compose your pictures?' };
+      }
+    });
+
+    const messages = await Promise.all(promises);
+    const newMap = new Map(messages.map((item) => [item.userId, item.lastMessage]));
+    setLastMessages(newMap);
+  };
+
   // useFocusEffect(
   //   useCallback(() => {
   //     fetchRecommendArtist();
@@ -147,6 +171,7 @@ const InboxPage: React.FC = () => {
   useEffect(() => {
     fetchRecommendArtist();
     getArtistData();
+    fetchLastMessages();
     // console.log("pendingArtists = ", pendingArtists);
   }, [artistsMap]);
 
@@ -170,7 +195,7 @@ const InboxPage: React.FC = () => {
                 <View style={styles.itemInfo}>
                   <Text style={styles.nameText}>{item.userName}</Text>
                   <Text style={styles.tagsText}>{item.userPreferenceTags?.join(' | ')}</Text>
-                  <Text style={styles.textText}>Continue chat</Text>
+                  <Text style={styles.lastMessage}>{lastMessages.get(item.userId)}</Text>
                 </View>
               </View>
               <View style={styles.chatDivider} />
@@ -254,7 +279,7 @@ const styles = StyleSheet.create({
     height:80,
   },
   divider: {
-    height: 5,
+    height: 2,
     width: 360,
     marginleft: 0,
     backgroundColor: '#E38F9C',
@@ -263,6 +288,8 @@ const styles = StyleSheet.create({
     height: 1,
     width: 360,
     marginleft: 15,
+    marginTop: 10,
+    marginBottom: 10,
     backgroundColor: '#FCC6CF',
   },
   titleContainer: {
@@ -293,12 +320,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tagsText: {
-    fontSize: 18,
-    fontWeight: '200',
+    fontSize: 15,
+    fontWeight: '300',
   },
   textText: {
     fontSize: 16,
-    color: '#7E397C'
+    color: '#7E397C',
+    marginTop: 10,
+  },
+  lastMessage: {
+    fontStyle: 'italic',
+    color: 'black',
+    marginTop: 10,
+    fontWeight: '200',
   }
 });
 
