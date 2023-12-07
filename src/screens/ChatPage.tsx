@@ -93,14 +93,27 @@ const ChatPage: React.FC<ChatPageProps> = ({route}) => {
         userTags: route.params.data.tags
       }
     })
-  }
+  };
+
+  const goBack = () => {
+    navigation.goBack();
+  };
 
   return (
     <View style={styles.container}>
+      {/* BackIcon */}
       <View style={styles.header}>
-      <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 0 }}
-            onPress={() => navigation.goBack()}/>
-        <TouchableOpacity onPress={() => handleProfileClick()}>
+        <TouchableOpacity style={styles.iconView} onPress={goBack}>
+          <Ionicons name='chevron-back-circle-outline' size={35} color='#5364B7' />
+        </TouchableOpacity>
+        <View style={styles.textHeader}>
+          <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Direct Message</Text>
+        </View>
+      </View>
+      <View style={styles.headerChat}>
+      {/* <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 0 }}
+            onPress={() => navigation.goBack()}/> */}
+        <TouchableOpacity style={{marginLeft: 40}} onPress={() => handleProfileClick()}>
           <Image source={{ uri: `http://localhost:4000/images/${artistProfileImgAddress}` }} style={{ width: 70, height: 70, borderRadius: 200 }} />
         </TouchableOpacity>
         <View style={styles.userInfo}>
@@ -152,10 +165,16 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 50,
   },
+  headerChat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+  },
   thinBar: {
     height: 1,
-    backgroundColor: '#000000',
-    width: 320,
+    backgroundColor: '#E38F9C',
+    width: 350,
     alignSelf: 'center',
   },
   messagesContainer: {
@@ -163,6 +182,23 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingLeft: 30,
     paddingRight: 30,
+  },
+  iconView: {
+    // backgroundColor: 'red', 
+    width: 40,
+    marginRight: 35,
+    marginLeft: 13,
+    left: 0,
+    marginBottom: 10,
+  },
+  textHeader: {
+    // backgroundColor: 'green',
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 20,
+    marginRight: 100,
+    marginBottom: 10,
   },
   messageContainer: {
     borderRadius: 10,
