@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, TextInput}
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import DatePicker from 'react-native-datepicker';
+import Modal from 'react-native-modal';
+import Calendar from "../component/Calendar";
+import TimePicker from "../component/TimePicker";
 
 type ArtistProfilePageRouteProp = RouteProp<RootStackParamList, 'ArtistProfilePage'>;
 type ArtistProfilePageNavigationProp = NavigationProp<RootStackParamList, 'ArtistProfilePage'>;
@@ -21,13 +23,15 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   const [arts, setArts] = useState<Art[]>([]);
   const [curTag, setCurTag]= useState<String>("artList"); // artList / mutualPreference / schedule
   const [msgData, setMsgData] = useState<string>('');
-  const [showSelector, setShowSelector] = useState(false);
+  const [showDateSelector, setShowDateSelector] = useState(false);
+  const [showTimeSelector, setShowTimeSelector] = useState(false);
   const [date, setDate] = useState(new Date());
-  const [time, setTime] = useState<string>('');
+  const [time, setTime] = useState(new Date());
   const [dateText, setDateText] = useState<string>('');
   const [mode, setMode] = useState<string>('');
   const [curUserTags, setCurUserTags] = useState<String[]>([]);
   const [combineInterestList, setCombineInterestList] = useState<String[]>([]);
+  const [requestSent, setRequestSent] = useState(false);
   
   const userName = "nathan_j";
 
@@ -297,88 +301,114 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
     // console.log(recData);
     setMsgData('');
     // clear the date and time selector
+    setRequestSent(true);
   }
 
-  const handleDateTimeOpen = (modeToShow: string) => {
-    setMode(modeToShow);
-    setShowSelector(!showSelector);
+  const handleDateOpen = () => {
+    setShowDateSelector(!showDateSelector);
+  }
+
+  const handleTimeOpen =() => {
+    setShowTimeSelector(!showTimeSelector);
   }
 
   const scheduleView = () => {
     return (
       <View style={styles.container_schedule}>
-        <Text style={{fontSize: 23, marginTop: 45}}>
-          Send Meeting Request to {recData.userName}
-        </Text>
-        <View style={styles.whenContainer}>
-          <View style={styles.whenLabels}>
-            <Text style={{color: 'white', fontSize: 17}}>Date</Text>
+        {requestSent ? (
+          <View style={{marginTop: 50, alignItems: 'center'}}>
+            <Text style={{fontSize: 20}}>Request Sent!</Text>
+            <TouchableOpacity style={styles.edit} onPress={() => {
+              setRequestSent(false);
+            }}>
+              <Text style={{color: 'white'}}>Edit Request</Text>
+            </TouchableOpacity>
           </View>
-          {!dateText && (
-            <Text style={{color: 'white', fontSize: 17, marginLeft: 5}}>{dateText}</Text>
-          )}
-          <TouchableOpacity style={{left: 210}} onPress={() => handleDateTimeOpen('date')}>
-            <Ionicons name='chevron-down-circle-outline' size={23} color='#3D1C51'/>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.whenContainer}>
-          <View style={styles.whenLabels}>
-              <Text style={{color: 'white', fontSize: 17}}>Time</Text>
-          </View>
-          {!time && (
-            <Text style={{color: 'white', fontSize: 17, marginLeft: 5}}>{time}</Text>
-          )}
-          <TouchableOpacity style={{left: 210}} onPress={() => handleDateTimeOpen('time')}>
-            <Ionicons name='chevron-down-circle-outline' size={23} color='#3D1C51'/>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.message}>
-          <Text style={{marginTop: 10, fontSize: 20, color: 'white'}}>Message</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Say something..."
-            value={msgData}
-            onChangeText={(text) => setMsgData(text)}
-            autoCapitalize="none"
-            multiline={true}
-          />
-        </View>
-        <TouchableOpacity style={styles.request} onPress={() => handleSentMeeting()}>
-          <Text style={{alignSelf: 'center', marginTop: 12, color: 'white'}}>
-            Send Meeting Request
-          </Text>
-        </TouchableOpacity>
-
-        {(showSelector && mode === 'date') ? (
-          <DatePicker 
-            style={{width: 200}}
-            date={date}
-            mode="date"
-            placeholder="Select Date"
-            onDateChange={(dateStr, date) => {
-              const month = date.getMonth();
-              const day = date.getDay();
-              const year = date.getFullYear();
-              const formattedDate = `${month} ${day}, ${year}`;
-              setDateText(formattedDate);
-              setDate(date);}
-            }
-          />
         ) : (
-          <DatePicker 
-            style={{width: 200}}
-            date={date}
-            mode="time"
-            placeholder="Select Time"
-            onDateChange={(timeStr, time) => {
-              const hours = time.getHours();
-              const minutes = time.getMinutes();
-              const formattedTime = `${hours}:${minutes}`;
-              setTime(formattedTime);}
-            }
-          />
-        )}
+          <View style={styles.container_schedule}>
+            <Text style={{fontSize: 23, marginTop: 45}}>
+              Send Meeting Request to {recData.userName}
+            </Text>
+            <View style={styles.whenContainer}>
+              <View style={styles.whenLabels}>
+                <Text style={{color: 'white', fontSize: 17}}>Date</Text>
+              </View>
+              <Text style={{color: 'black', fontSize: 17, marginLeft: 5}}>{date.toDateString()}</Text>
+              <TouchableOpacity style={{position: 'absolute', left: 275}} 
+              onPress={() => handleDateOpen()}>
+                <Ionicons name='chevron-down-circle-outline' size={23} color='#3D1C51'/>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.whenContainer}>
+              <View style={styles.whenLabels}>
+                  <Text style={{color: 'white', fontSize: 17}}>Time</Text>
+              </View>
+              <Text style={{color: 'black', fontSize: 17, marginLeft: 5}}>
+                {`${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`}
+                </Text>
+              <TouchableOpacity style={{position: 'absolute', left: 275}} 
+              onPress={() => handleTimeOpen()}>
+                <Ionicons name='chevron-down-circle-outline' size={23} color='#3D1C51'/>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.message}>
+              <Text style={{marginTop: 10, fontSize: 20, color: 'white'}}>Message</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Say something..."
+                value={msgData}
+                onChangeText={(text) => setMsgData(text)}
+                autoCapitalize="none"
+                multiline={true}
+              />
+            </View>
+            <TouchableOpacity style={styles.request} onPress={() => handleSentMeeting()}>
+              <Text style={{alignSelf: 'center', marginTop: 12, color: 'white'}}>
+                Send Meeting Request
+              </Text>
+            </TouchableOpacity>
 
+            {showDateSelector && (
+              <Modal
+              isVisible={showDateSelector}
+              animationIn='slideInUp'
+              animationOut='slideOutDown'
+              onBackdropPress={() => setShowDateSelector(false)}
+              style={{alignSelf: 'center'}}
+              >
+              <Calendar onDatePress={(date: Date) => {
+                  setDate(date);
+                }}
+              />
+              <View>
+                <TouchableOpacity style={styles.done} onPress={() => setShowDateSelector(false)}>
+                  <Text style={{color: 'white'}}>Done</Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+            )}
+
+            {showTimeSelector && (
+              <Modal
+              isVisible={showTimeSelector}
+              animationIn='slideInUp'
+              animationOut='slideOutDown'
+              onBackdropPress={() => setShowTimeSelector(false)}
+              style={{alignSelf: 'center'}}
+              >
+                <Text>Time</Text>
+                <View>
+                  <TimePicker selectedTime={time} onTimeChange={(time) => setTime(time)} />
+                  <TouchableOpacity style={styles.done} onPress={() => setShowTimeSelector(false)}>
+                    <Text style={{color: 'white'}}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              </Modal>
+            )}
+
+          </View>
+        )}
+        
       </View>
     )
   }
@@ -690,6 +720,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#3D1C51',
     width: '20%',
     height: '100%'
+  },
+  calendar: {
+    // backgroundColor: '#D7798B',
+    alignSelf: 'center',
+    minWidth: '65%',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  done: {
+    minWidth: '30%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 30,
+    backgroundColor: '#D7798B',
+    marginTop: 15,
+    borderRadius: 25,
+  },
+  edit: {
+    marginTop: 20,
+    backgroundColor: '#D7798B',
+    minWidth: '25%',
+    minHeight: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 15
   }
 });
 
