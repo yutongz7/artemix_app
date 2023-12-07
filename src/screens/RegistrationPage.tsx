@@ -16,25 +16,26 @@ const RegistrationPage = () => {
   const [lastName, setLastName] = useState('');
   const [userId, setUserId] = useState('');
   const [phone, setPhone] = useState('');
-  const [preferences, setPreferences] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
+  const [tags, setTags] =  useState('');
 
   const goBack = () => {
     navigation.goBack();
   };
 
   const handleNextPress = async () => {
+    const userPhone = parseInt(phone.replace(/-/g, ''))
     try {
       const userObject = {
         userId: userId,
         userName: `${firstName} ${lastName}`,
         userPassword: password,
         userEmail: email,
-        userPhone: phone,
+        userPhone: userPhone,
         userProfileImgAddress: '',
-        userPreferenceTags: selectedPreferences,
-        tags: [],
+        userPreferenceTags: tags,
+        tags: selectedPreferences,
       };
 
       const response = await fetch('http://localhost:4000/users', {
@@ -45,7 +46,7 @@ const RegistrationPage = () => {
         body: JSON.stringify(userObject),
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         navigation.navigate('OnboardingPage1');
       } else {
         const responseBody = await response.json();
@@ -82,6 +83,7 @@ const RegistrationPage = () => {
         placeholderTextColor="rgba(0, 0, 0, 0.48)"
         value={email}
         onChangeText={(text) => setEmail(text)}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -90,6 +92,7 @@ const RegistrationPage = () => {
         secureTextEntry
         value={password}
         onChangeText={(text) => setPassword(text)}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -98,6 +101,7 @@ const RegistrationPage = () => {
         secureTextEntry
         value={confirmPassword}
         onChangeText={(text) => setConfirmPassword(text)}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -117,8 +121,9 @@ const RegistrationPage = () => {
         style={styles.input}
         placeholder="User ID"
         placeholderTextColor="rgba(0, 0, 0, 0.48)"
-        value={lastName}
+        value={userId}
         onChangeText={(text) => setUserId(text)}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -127,6 +132,14 @@ const RegistrationPage = () => {
         value={phone}
         onChangeText={(text) => setPhone(text)}
       />
+      <TextInput
+        style={styles.input}
+        placeholder="What kind of artist are you?"
+        placeholderTextColor="rgba(0, 0, 0, 0.48)"
+        value={tags}
+        onChangeText={(text) => setTags(text)}
+        autoCapitalize="none"
+      />
 
       <Text style={styles.preferencesTitle}>Preferences</Text>
       <Text style={styles.preferencesSubtitle}>
@@ -134,18 +147,30 @@ const RegistrationPage = () => {
       </Text>
       <View style={styles.searchPreferencesContainer}>
         <Pressable
-          style={styles.input}
+            style={[
+            styles.input,
+            { alignItems: 'flex-start' },
+            selectedPreferences.length > 0 && styles.selectedPreferencesContainer,
+          ]}
           onPress={() => setModalVisible(true)}>
           <Text
-            style={{
-              color: 'rgba(0, 0, 0, 0.48)',
-              fontSize: 15,
-              fontStyle: 'italic',
-              paddingLeft: 10,
-              marginTop: 6,
-              textAlign: 'left',
-            }}>
-            {preferences || 'Select Preferences'}
+            style={[
+              styles.selectedPreferencesText,
+              {
+                color:
+                  selectedPreferences.length > 0
+                    ? styles.selectedPreferencesText.color
+                    : 'rgba(0, 0, 0, 0.48)',
+                fontStyle:
+                  selectedPreferences.length > 0
+                    ? styles.selectedPreferencesText.fontStyle
+                    : 'italic',
+                marginTop: 7,
+              },
+            ]}>
+            {selectedPreferences.length > 0
+              ? selectedPreferences.join(', ')
+              : 'Select Preferences'}
           </Text>
         </Pressable>
         {modalVisible && (
@@ -153,73 +178,73 @@ const RegistrationPage = () => {
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Poetry') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('poetry') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Poetry')}>
-              <Text style={styles.preferenceButtonText}>Poetry</Text>
+              onPress={() => handlePreferenceSelect('poetry')}>
+              <Text style={styles.preferenceButtonText}>poetry</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Photography') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('photography') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Photography')}>
-              <Text style={styles.preferenceButtonText}>Photography</Text>
+              onPress={() => handlePreferenceSelect('photography')}>
+              <Text style={styles.preferenceButtonText}>photography</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Paintings') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('paintings') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Paintings')}>
-              <Text style={styles.preferenceButtonText}>Paintings</Text>
+              onPress={() => handlePreferenceSelect('paintings')}>
+              <Text style={styles.preferenceButtonText}>paintings</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Water Color') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('water color') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Water Color')}>
+              onPress={() => handlePreferenceSelect('water color')}>
               <Text style={styles.preferenceButtonText}>Water Color</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Drawings') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('drawings') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Drawings')}>
-              <Text style={styles.preferenceButtonText}>Drawings</Text>
+              onPress={() => handlePreferenceSelect('drawings')}>
+              <Text style={styles.preferenceButtonText}>drawings</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Pencil Art') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('pencil art') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Pencil Art')}>
-              <Text style={styles.preferenceButtonText}>Pencil Art</Text>
+              onPress={() => handlePreferenceSelect('pencil art')}>
+              <Text style={styles.preferenceButtonText}>pencil art</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Writing') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('writing') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Writing')}>
-              <Text style={styles.preferenceButtonText}>Writing</Text>
+              onPress={() => handlePreferenceSelect('writing')}>
+              <Text style={styles.preferenceButtonText}>writing</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.preferenceButton,
-                selectedPreferences.includes('Music') && styles.selectedPreferenceButton,
+                selectedPreferences.includes('music') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('Music')}>
-              <Text style={styles.preferenceButtonText}>Music</Text>
+              onPress={() => handlePreferenceSelect('music')}>
+              <Text style={styles.preferenceButtonText}>music</Text>
             </TouchableOpacity>
           </View>
         )}
   </View>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-        <Text style={styles.nextButtonText}>Next</Text>
+        <Text style={styles.nextButtonText}>Register</Text>
       </TouchableOpacity>
     </View>
   );
@@ -282,7 +307,8 @@ const styles = StyleSheet.create({
   selectedPreferencesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 5,
+    color: '#000000',
+    fontStyle: 'normal',
   },
   selectedPreferenceText: {
     backgroundColor: '#999898',
@@ -323,6 +349,14 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     left: 0,
     marginTop: 10,
+  },
+  defaultPreferencesText: {
+    color: 'rgba(0, 0, 0, 0.48)',
+    fontStyle: 'italic',
+  },
+  selectedPreferencesText: {
+    color: '#000000',
+    fontStyle: 'normal',
   },
 });
 

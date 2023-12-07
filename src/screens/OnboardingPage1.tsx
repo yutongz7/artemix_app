@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 type OnboardingPage1RouteProp = RouteProp<RootStackParamList, 'OnboardingPage1'>;
 type OnboardingPage1NavigationProp = NavigationProp<RootStackParamList, 'OnboardingPage1'>;
@@ -12,8 +13,15 @@ const OnboardingPage1 = () => {
         navigation.navigate('OnboardingPage2');
     };
 
+    const goBack = () => {
+        navigation.goBack();
+      };
+
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.iconView} onPress={goBack}>
+        <Ionicons name='chevron-back-outline' size={35} color='#5364B7'/>
+      </TouchableOpacity>
       <Text style={styles.title}>Welcome to the Onboarding Page 1</Text>
       <Text style={styles.description}>
         This is a placeholder for the first onboarding page.
@@ -53,6 +61,13 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: 'white',
     fontSize: 20,
+  },
+  iconView: {
+    width: 40,
+    marginRight: 40,
+    marginLeft: 8,
+    left: 0,
+    marginTop: 10,
   },
 });
 
