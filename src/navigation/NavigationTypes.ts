@@ -49,5 +49,7 @@ export type RootStackParamList = {
     },
     RegistrationPage: undefined,
     ProfilePage: undefined,
-    UserSettings: undefined
+    UserSettings: undefined,
+    OnboardingPage1: undefined,
+    OnboardingPage2: undefined,
   };
