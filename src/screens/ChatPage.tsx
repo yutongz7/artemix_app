@@ -149,6 +149,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
     navigation.goBack();
   };
 
+  const LogoImg = () => {
+    return (
+      <Image source={require('../assets/logo.png')} style={{marginTop: 8, marginBottom: 8, marginRight: 15, width: 80, height: 20}}></Image>
+    )
+  };
+
   const handleMeetingClick = () => {
     console.log(route.params.data.userName);
     navigation.navigate('ArtistProfilePage', {
@@ -176,6 +182,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
         <View style={styles.textHeader}>
           <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Direct Message</Text>
         </View>
+        <LogoImg/>
       </View>
       <View style={styles.headerChat}>
       {/* <Ionicons name='arrow-back' size={35} style={{ paddingLeft: 10, paddingTop: 0 }}
@@ -261,9 +268,10 @@ const styles = StyleSheet.create({
     width: 200,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 20,
-    marginRight: 100,
-    marginBottom: 10,
+    marginLeft: 21,
+    marginRight: 17,
+    marginTop: 5,
+    marginBottom: 11,
   },
   messageContainer: {
     borderRadius: 10,

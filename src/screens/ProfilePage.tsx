@@ -49,6 +49,13 @@ const ProfilePage: React.FC = () => {
   const [curLikedArt, setCurLikedArt] = useState<Art []>([]);
   const [curArtistIds, setCurArtistIds] = useState<string[]>([]);
   const [curArtistList, setCurArtistList] = useState<ArtistData[]>([]);
+  const [curUserName, setCurUserName] = useState('');
+  const [curUserPhone, setCurUserPhone] = useState('');
+  const [curUserEmail, setCurUserEmail] = useState('');
+  const [curUserPassword, setCurUserPassword] = useState('');
+  const [curUserProfileImgAddress, setCurUserProfileImgAddress] = useState('');
+  const [curUserArtInterestTags, setCurUserArtInterestTags] = useState<string[]>([]);
+  const [curUserPreferenceTags, setCurUserPreferenceTags] = useState<string[]>([]);
   const [curTag, setCurTag]= useState<string>("YourArts"); // YourArts / LikedArts / Artists
 
   const toggleView = () => {
@@ -132,6 +139,21 @@ const ProfilePage: React.FC = () => {
       console.error('Error fetching arts:', error);
     }
   };
+
+  const getCurUserData =async () => {
+    const data = await fetchArtistData(userName)
+    setCurUserName(data.data[0].userName);
+    setCurUserEmail(data.data[0].userEmail);
+    setCurUserArtInterestTags(data.data[0].tags);
+    setCurUserPassword(data.data[0].userPassword);
+    setCurUserPhone(data.data[0].userPhone);
+    setCurUserPreferenceTags(data.data[0].userPreferenceTags);
+    setCurUserProfileImgAddress(data.data[0].userProfileImgAddress);
+  }
+
+  useEffect(() => {
+    getCurUserData();
+  }, [userName]);
 
   const getLikedlData = async() => {
     let filteredArts: Art[] = [];
@@ -322,8 +344,8 @@ const ProfilePage: React.FC = () => {
                 source={{uri: `http://localhost:4000/images/${userName}.png`}}
                 style={styles.imageStyle}
         />
-        <Text style={{fontSize: 30, marginTop: 10}}>Nathan J</Text>
-        <Text style={{marginTop: 5}}>Photographer</Text>
+        <Text style={{fontSize: 30, marginTop: 10}}>{curUserName}</Text>
+        <Text style={{marginTop: 5, fontSize: 18, fontWeight: '300',}}>{curUserPreferenceTags.join(' | ')}</Text>
         <View style={styles.settingsContainer}>
           <TouchableOpacity onPress={() => handleSettingsPress()}>
             <Ionicons name='settings-sharp' size={25} color='white'/>
@@ -509,8 +531,8 @@ const styles = StyleSheet.create({
   },
   settingsContainer: {
     position: 'absolute', 
-    bottom: 80, 
-    left: 80, 
+    bottom: 70, 
+    left: 110, 
     backgroundColor:'#5364B7',
     width: 35,
     height: 35,

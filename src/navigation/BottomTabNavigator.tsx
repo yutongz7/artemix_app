@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { Image } from 'react-native';
 import HomePage from '../screens/HomePage';
 import SearchPage from '../screens/SearchPage';
 import PostPage from '../screens/PostPage';
@@ -11,10 +11,17 @@ import ProfilePage from '../screens/ProfilePage';
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator: React.FC = () => {
+
+  const LogoImg = () => {
+    return (
+      <Image source={require('../assets/logo.png')} style={{marginBottom: 7, marginRight: 15, width: 80, height: 20}}></Image>
+    )
+  };
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: true,
+        headerRight: () => <LogoImg />,
         tabBarLabelStyle: {
           display: "none"
         },

@@ -182,7 +182,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
       }
       return recommendArtist;
     }
-  }
+  };
 
   // useEffect(() => {
   //   updateRecommendArtistsTable();
@@ -287,6 +287,11 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
   const goBack = () => {
     navigation.goBack();
   };
+  const LogoImg = () => {
+    return (
+      <Image source={require('../assets/logo.png')} style={{marginTop: 8, marginBottom: 8, marginRight: 15, width: 80, height: 20}}></Image>
+    )
+  };
 
   return (
     <View style={{ height: '95%' }}>
@@ -300,6 +305,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
         <View style={styles.textHeader}>
           <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Detail Page</Text>
         </View>
+        <LogoImg/>
       </View>
 
       {/* Main Content */}
@@ -377,15 +383,16 @@ const styles = StyleSheet.create({
     width: 200,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 20,
-    marginRight: 100,
+    marginLeft: 22,
+    marginRight: 18,
+    marginTop: 9,
     marginBottom: 10,
   },
   header: {
     width: '100%',
     backgroundColor: 'white',
     // height: 90,
-    paddingTop: 60,
+    paddingTop: 56,
     flexDirection: 'row',
     // alignItems: 'center',
     justifyContent: 'center',
