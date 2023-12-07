@@ -11,7 +11,7 @@ interface Art {
   artTitle: string;
   artContent: string;
   artAddress: string;
-  artTags: {type: [String], default: []};
+  artTags: {type: [string], default: []};
   width: number;
   height: number;
 }
@@ -27,6 +27,18 @@ interface likesData {
   }[];
 };
 
+interface ArtistData {
+  _id: string;
+  userId: string;
+  userName: string;
+  userPassword: string;
+  userEmail: string;
+  userPhone: number;
+  userProfileImgAddress: string;
+  userPreferenceTags: string[];
+  tags: string[];
+};
+
 type ProfilePageNavigationProp = NavigationProp<RootStackParamList, 'ProfilePage'>;
 
 const ProfilePage: React.FC = () => {
@@ -35,8 +47,9 @@ const ProfilePage: React.FC = () => {
   const [arts, setArts] = useState<Art[]>([]); // for all art
   const [userArt, setUserArt] = useState<Art []>([]);
   const [curLikedArt, setCurLikedArt] = useState<Art []>([]);
-  const [curArtistIds, setCurArtistIds] = useState<String[]>([]);
-  const [curTag, setCurTag]= useState<String>("YourArts"); // YourArts / LikedArts / Artists
+  const [curArtistIds, setCurArtistIds] = useState<string[]>([]);
+  const [curArtistList, setCurArtistList] = useState<ArtistData[]>([]);
+  const [curTag, setCurTag]= useState<string>("YourArts"); // YourArts / LikedArts / Artists
 
   const toggleView = () => {
     setShowUserArt(!showUserArt);
@@ -53,18 +66,45 @@ const ProfilePage: React.FC = () => {
   };
 
   // fetch art
+  // useEffect(() => {
+  //   fetch('http://localhost:4000/arts')
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       const artsWithDimensions = data.data.map((art: Art) => ({
+  //         ...art,
+  //         width: art.width,
+  //         height: art.height,
+  //       }));
+  //       setArts(artsWithDimensions);
+  //     })
+  //     .catch((error) => console.error('Error fetching arts:', error));
+  // }, []);
   useEffect(() => {
-    fetch('http://localhost:4000/arts')
-      .then((response) => response.json())
-      .then((data) => {
-        const artsWithDimensions = data.data.map((art: Art) => ({
-          ...art,
-          width: art.width,
-          height: art.height,
-        }));
-        setArts(artsWithDimensions);
-      })
-      .catch((error) => console.error('Error fetching arts:', error));
+    // fetch art
+    let isMounted = true; // flag to check if component is mounted
+
+    const fetchArts = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/arts');
+        const data = await response.json();
+        if (isMounted) {
+          const artsWithDimensions = data.data.map((art: Art) => ({
+            ...art,
+            width: art.width,
+            height: art.height,
+          }));
+          setArts(artsWithDimensions);
+        }
+      } catch (error) {
+        console.error('Error fetching arts:', error);
+      }
+    };
+
+    fetchArts();
+
+    return () => {
+      isMounted = false; // set flag to false when component unmounts
+    };
   }, []);
 
   // get all arts filtered by the current user
@@ -83,23 +123,41 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    const getLikedlData = async() => {
-      let filteredArts: Art[] = [];
-      var likesData = await fetchLikesData();
-      if (!likesData) {
-        console.error('Error fetching likes data in isAlreadyLiked')
-      } else {
-        const userLikedIds = likesData[0].likedArtIds;
-        const userLikes = likesData[0].artistIdToLikedArts;
-        const artistConnected = Array.from(userLikes.keys());
-        setCurArtistIds(artistConnected);
-        filteredArts = arts.filter(art => userLikedIds?.includes(art._id));
-        setCurLikedArt(filteredArts);
-      }
-    };
-    getLikedlData();
-  });
+  const fetchArtistData = async (userId : string) => {
+    try {
+      const response = await fetch(`http://localhost:4000/users?where={"userId":"${userId}"}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching arts:', error);
+    }
+  };
+
+  const getLikedlData = async() => {
+    let filteredArts: Art[] = [];
+    var likesData = await fetchLikesData();
+    if (!likesData) {
+      console.error('Error fetching likes data in isAlreadyLiked')
+    } else {
+      const userLikedIds = likesData[0].likedArtIds;
+      const userLikes = likesData[0].artistIdToLikedArts;
+      const newEntries = Object.entries(userLikes) as [string, string[]][];
+      const newMap = new Map<string, string[]>(newEntries);
+      const likesArtIds = userLikes ? Array.from(newMap.keys()) : [];
+      setCurArtistIds(likesArtIds);
+      filteredArts = arts.filter(art => userLikedIds?.includes(art._id));
+      setCurLikedArt(filteredArts);
+    }
+  };
+
+  const getArtistData = async () => {
+    let artistList: ArtistData[] = [];
+    for (const userId of curArtistIds) {
+      const artistData = await fetchArtistData(userId);
+      artistList.push(artistData.data[0])
+    }
+    setCurArtistList(artistList);
+  };
 
   // Function to calculate scaled dimensions while maintaining aspect ratio
   const getScaledDimensions = (originalWidth: number, originalHeight: number, maxWidth: number, maxHeight: number) => {
@@ -146,6 +204,30 @@ const ProfilePage: React.FC = () => {
     // console.log('Image pressed:');
   };
 
+  const handleChat = (item:ArtistData) => {
+    navigation.navigate('ChatPage', {
+      data: {
+        userId: item.userId,
+        userName: item.userName,
+        userProfileImgAddress: item.userProfileImgAddress,
+        userPreferenceTags: item.userPreferenceTags,
+        tags: item.tags,
+      }
+    });
+  };
+
+  const handleArtistsProfile = (item: ArtistData) => {
+    navigation.navigate('ArtistProfilePage', {
+      data: {
+        userId: item.userId,
+        userName: item.userName,
+        userProfileImgAddress: item.userProfileImgAddress,
+        userPreferenceTags: item.userPreferenceTags,
+        userTags: item.tags,
+      }
+    });
+  };
+
   const renderContent = () => {
     if (curTag === 'YourArts') {
       // Render user's art posts
@@ -174,6 +256,10 @@ const ProfilePage: React.FC = () => {
       );
     } else if (curTag === 'LikedArts'){
       // Render liked posts
+      if (curArtistIds.length === 0) {
+        getLikedlData();
+      }
+      
       return (
         <ScrollView contentContainerStyle={styles.container} horizontal={false}>
           {(curLikedArt.length === 0) ? (
@@ -195,7 +281,36 @@ const ProfilePage: React.FC = () => {
         </ScrollView>
       );
     } else if (curTag === 'Artists') {
-      <Text>Artists List</Text>
+      if (curArtistIds.length == 0) {
+        getLikedlData();
+      }
+      if (curArtistList.length == 0) {
+        getArtistData();
+      }
+      return (
+        <ScrollView contentContainerStyle={styles.lineContainer} horizontal={false}>
+          {curArtistList?.map((item) => (
+            <View key={item._id}>
+              <View style={styles.itemContainer}>
+                <TouchableOpacity key={item._id} onPress={() => handleArtistsProfile(item)}>
+                  <Image
+                    source={{uri: `http://localhost:4000/images/${item.userProfileImgAddress}`}}
+                    style={styles.imgStyle}
+                  />
+                </TouchableOpacity>
+                <View style={styles.itemInfo}>
+                  <Text style={styles.nameText}>{item.userName}</Text>
+                  <Text style={styles.tagsText}>{item.userPreferenceTags?.join(' | ')}</Text>
+                </View>
+                <TouchableOpacity onPress={() => handleChat(item)}>
+                  <Ionicons name='chatbubbles' size={35} color='#E38F9C' />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.lineDivider} />
+            </View>
+          ))}
+        </ScrollView>
+      )
     }
   };
 
@@ -278,6 +393,59 @@ const ProfilePage: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  imgStyle: {
+    width: 70,
+    height: 70,
+    borderRadius: 200
+  },
+  lineContainer: {
+    flexWrap: 'wrap',
+    paddingLeft: 10,
+    marginVertical: 10,
+    justifyContent: 'flex-start',
+  },
+  itemContainer: {
+    // flex: 1, 
+    flexDirection: 'row',
+    justifyContent: 'flex-start', 
+    alignItems: 'center',
+    marginLeft: 10,
+    marginTop: 0,
+    height: 80,
+    width: 350,
+    // backgroundColor: 'green'
+  },
+  lineDivider: {
+    height: 1,
+    width: 380,
+    marginleft: 20,
+    marginTop: 8,
+    marginBottom: 8,
+    // backgroundColor: '#FCC6CF',
+  },
+  itemInfo: {
+    flex: 1, 
+    flexDirection: 'column',
+    justifyContent: 'center', 
+    alignItems: 'flex-start',
+    width: 300, 
+    height: 50,
+    marginLeft: 20,
+    // backgroundColor: 'blue'
+  },
+  nameText: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  tagsText: {
+    fontSize: 15,
+    fontWeight: '300',
+  },
+  textText: {
+    fontSize: 16,
+    color: '#7E397C',
+    marginTop: 10,
+  },
   bioInfo: {
     alignSelf: 'center',
     justifyContent: 'center',

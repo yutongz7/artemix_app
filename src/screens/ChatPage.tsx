@@ -3,7 +3,7 @@ import { Image, View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { RouteProp, useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ChatPageRouteProp = RouteProp<RootStackParamList, 'ChatPage'>;
 type ChatPageNavigationProp = NavigationProp<RootStackParamList, 'ChatPage'>;

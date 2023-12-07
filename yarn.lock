@@ -1943,6 +1943,9 @@
     "mkdirp" "^1.0.4"
     "rimraf" "^3.0.2"
 
+"@react-native-async-storage/root@github:react-native-async-storage/async-storage":
+  "resolved" "git+ssh://git@github.com/react-native-async-storage/async-storage.git#cb28df7470cc99c18743a1a1290e75c5edbcfebb"
+
 "@react-native-community/cli-clean@11.3.10":
   "integrity" "sha512-g6QjW+DSqoWRHzmIQW3AH22k1AnynWuOdy2YPwYEGgPddTeXZtJphIpEVwDOiC0L4mZv2VmiX33/cGNUwO0cIA=="
   "resolved" "https://registry.npmjs.org/@react-native-community/cli-clean/-/cli-clean-11.3.10.tgz"
