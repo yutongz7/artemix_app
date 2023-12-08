@@ -87,13 +87,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
-    fontFamily: 'QuattrocentoSans-Regular',
     backgroundColor: 'white',
   },
   title: {
     fontSize: 24,
     marginBottom: 20,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   input: {
     height: 40,
@@ -104,12 +102,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingLeft: 10,
     width: '100%',
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   error: {
     color: 'red',
     marginBottom: 10,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   loginButton: {
     marginTop: 20,
@@ -124,7 +120,6 @@ const styles = StyleSheet.create({
   loginText: {
     color: 'white',
     fontSize: 15,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   noAccText: {
     color: 'black',
@@ -132,7 +127,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontStyle: 'italic',
     marginBottom: 3,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   accButton: {
     borderRadius: 10,
@@ -148,7 +142,6 @@ const styles = StyleSheet.create({
   accText: {
     color: '#5364B7',
     fontSize: 15,
-    fontFamily: 'QuattrocentoSans-Regular',
     fontWeight: 'bold'
   },
 });

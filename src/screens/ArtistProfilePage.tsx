@@ -468,7 +468,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
             <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
           </TouchableOpacity>
           <View style={styles.textHeader}>
-            <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Artist Profile</Text>
+            <Text style={{fontWeight: '500', fontSize: 18}}>Artist Profile</Text>
           </View>
           <LogoImg/>
         </View>
@@ -664,11 +664,9 @@ const styles = StyleSheet.create({
   topicText: {
     color: '#5364B7',
     fontSize: 15,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   textText: {
     fontSize: 15,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   section: {
     flexDirection: 'column',

@@ -181,7 +181,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
           <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
         </TouchableOpacity>
         <View style={styles.textHeader}>
-          <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Direct Message</Text>
+          <Text style={{fontWeight: '500', fontSize: 18}}>Direct Message</Text>
         </View>
         <LogoImg/>
       </View>

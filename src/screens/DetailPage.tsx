@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, StyleSheet, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { View, Image, StyleSheet, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -28,6 +28,13 @@ interface ArtistData {
   tags: string[];
 }
 
+interface Comments {
+  _id: string;
+  commentFromUserId: string;
+  commentToArtId: String,
+  commentContent: String,
+}
+
 const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
   const pressedArtData = route.params.data;
   // console.log("pressedArtData: ", pressedArtData)
@@ -41,6 +48,8 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
   const [artistPreferenceTags, setArtistPreferenceTags] = useState([]);
   const [isNewRecommendArtist, setIsNewRecommendArtist] = useState(true);
   const { curUserId } = useGlobalContext();
+  const [curComment, setCurComment] = useState('');
+  const [comments, setComments] = useState<Comments[]>([]);
 
   const tags: string[] = (pressedArtData.artTags as unknown) as string[];
 
@@ -61,7 +70,6 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
 
   const fetchLikesData = async () => {
     try {
-      console.log("curUserId: ", curUserId)
       const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${curUserId}"}`);
       const data: likesData = await response.json();
       return data;
@@ -127,6 +135,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
     try {
       const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${curUserId}"}`);
       const data: recommendArtistData = await response.json();
+      console.log("data: ", data)
       return data;
     } catch (error) {
       console.error('Error fetching recommendArtists: ', error);
@@ -293,6 +302,60 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
     )
   };
 
+  const sendNewComment = async() => {
+    console.log("sendNewComment")
+    try {
+      const commentObject = {
+        commentFromUserId: curUserId,
+        commentToArtId: pressedArtData.artId,
+        commentContent: curComment,
+      };
+      const response_comment = await fetch('http://localhost:4000/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentObject),
+      });
+      if (response_comment.status !== 201 && response_comment.status !== 200){
+        const responseBody = await response_comment.json();
+        console.error('response_comment:', responseBody.message);
+      };
+      setCurComment('');
+      fetch('http://localhost:4000/comments')
+        .then((response) => response.json())
+        .then((data) => {
+        const commentsData = data.data.map((comment: Comments) => ({
+            ...comment,
+            _id: comment._id,
+            commentFromUserId: comment.commentFromUserId,
+            commentToArtId: comment.commentToArtId,
+            commentContent: comment.commentContent
+        }));
+        setComments(commentsData);
+        })
+        .catch((error) => console.error('Error fetching comments:', error));
+    } catch(error) {
+      console.error("post comment error: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetch('http://localhost:4000/comments')
+        .then((response) => response.json())
+        .then((data) => {
+        const commentsData = data.data.map((comment: Comments) => ({
+            ...comment,
+            _id: comment._id,
+            commentFromUserId: comment.commentFromUserId,
+            commentToArtId: comment.commentToArtId,
+            commentContent: comment.commentContent
+        }));
+        setComments(commentsData);
+        })
+        .catch((error) => console.error('Error fetching comments:', error));
+    }, []);
+
   return (
     <View style={{ height: '95%' }}>
       {/* Back Button */}
@@ -303,7 +366,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
           <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
         </TouchableOpacity>
         <View style={styles.textHeader}>
-          <Text style={{fontFamily: 'QuattrocentoSans-Regular', fontWeight: '500', fontSize: 18}}>Detail Page</Text>
+          <Text style={{fontWeight: '500', fontSize: 18}}>Detail Page</Text>
         </View>
         <LogoImg/>
       </View>
@@ -353,15 +416,31 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
         )}
       <Modal isVisible={isModalVisible} animationIn="slideInUp" animationOut="slideOutDown" onBackdropPress={toggleModal}>
         <View style={styles.modalContainer}>
-          <View style={[styles.commentsContainer, { bottom: 10, width: '95%' }]}>
-            <Text style={{ marginLeft: 8, marginTop: 8 }}>Say Something...</Text>
-          </View>
-          <ScrollView style={{ margin: 10 }}>
-            <TouchableOpacity onPress={toggleModal} style={{ position: 'absolute', right: 0, height: 30, width: 30 }}>
+          {/* <View style={[styles.commentsUpContainer, { bottom: 10, width: '95%' }]}>
+            <TextInput
+              style={styles.input}
+              placeholder="Say Something ..."
+              placeholderTextColor="rgba(0, 0, 0, 0.48)"
+              value={curComment}
+              onChangeText={(text) => setCurComment(text)}
+            />
+          </View> */}
+          <TextInput
+              style={styles.input}
+              placeholder="Say Something ..."
+              placeholderTextColor="rgba(0, 0, 0, 0.48)"
+              value={curComment}
+              onChangeText={(text) => setCurComment(text)}
+            />
+          <TouchableOpacity style={styles.sendButton} onPress={sendNewComment}>
+            <Text style={styles.sendButtonText}>Send</Text>
+          </TouchableOpacity>
+          <ScrollView style={{ marginHorizontal: 15, marginTop: -65 }}>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={{ position: 'absolute', right: 0, height: 30, width: 30, zIndex: 1 }}>
               <Ionicons name='close-circle' size={30} />
             </TouchableOpacity>
             <Text style={{ fontSize: 25 }}>Comments</Text>
-            <Comments artId={pressedArtData.artId} username={curUserId} />
+            <Comments artId={pressedArtData.artId} username={curUserId} comments={comments}/>
           </ScrollView>
         </View>
       </Modal>
@@ -407,13 +486,11 @@ const styles = StyleSheet.create({
   },
   contentText: {
     fontSize: 20,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   titleText: {
     fontSize: 30,
     marginLeft: 20,
     paddingTop: 5,
-    fontFamily: 'QuattrocentoSans-Regular',
   },
   contentContainer: {
     flexDirection: 'row',
@@ -426,9 +503,10 @@ const styles = StyleSheet.create({
     marginLeft: 30
   },
   tagsText: {
-    color: '#5364B7',
-    fontSize: 20,
-    fontFamily: 'QuattrocentoSans-Regular',
+    // color: '#5364B7',
+    fontWeight: '200',
+    fontSize: 19,
+    fontStyle: 'italic'
   },
   likeButton: {
     alignSelf: 'center',
@@ -453,10 +531,23 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '85%',
     height: 40,
-    borderRadius: 25,
+    borderRadius: 10,
     borderStyle: 'solid',
     borderColor: "#5364B7",
-    borderWidth: 3
+    borderWidth: 2
+  },
+  commentsUpContainer: {
+    position: 'absolute',
+    bottom: 0,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    alignSelf: 'center',
+    width: '85%',
+    height: 40,
+    // borderRadius: 25,
+    // borderStyle: 'solid',
+    // borderColor: "#5364B7",
+    // borderWidth: 2
   },
   modalContainer: {
     width: '100%',
@@ -467,7 +558,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     position: 'absolute',
     backgroundColor: '#DCE5F7',
-    borderRadius: 25
+    borderRadius: 15
   },
   modalWrapper: {
     position: 'absolute',
@@ -476,7 +567,39 @@ const styles = StyleSheet.create({
     background: '#252424cc',
     height: '100%',
     width: '100%'
-  }
+  },
+  input: {
+    zIndex: 1,
+    borderWidth: 2,
+    borderColor: '#5364B7',
+    borderRadius: 10,
+    height: 33,
+    width: '75%',
+    fontSize: 15,
+    fontStyle: 'italic',
+    marginLeft: 10,
+    paddingLeft: 10,
+    marginBottom: 17,
+    backgroundColor: 'rgba(234, 233, 233, 0.38)',
+    top: 440,
+  },
+  sendButtonText: {
+    color: 'white',
+    fontSize: 15,
+  },
+  sendButton: {
+    backgroundColor: '#5364B7',
+    borderRadius: 10,
+    width: 70,
+    height: 33,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 8,
+    top: 390,
+    left: 146,
+    zIndex: 1
+  },
 });
 
 

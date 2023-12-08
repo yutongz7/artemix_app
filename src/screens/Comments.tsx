@@ -5,6 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 interface CommentProps {
     artId: string;
     username: string;
+    comments: Comments[],
 }
 
 interface Comments {
@@ -14,24 +15,24 @@ interface Comments {
     commentContent: String,
   }
 
-const CommentsSection: React.FC<CommentProps> = ({artId, username}) => {
-    const [comments, setComments] = useState<Comments[]>([]);
+const CommentsSection: React.FC<CommentProps> = ({artId, username, comments}) => {
+    // const [comments, setComments] = useState<Comments[]>([]);
 
-    useEffect(() => {
-        fetch('http://localhost:4000/comments')
-            .then((response) => response.json())
-            .then((data) => {
-            const commentsData = data.data.map((comment: Comments) => ({
-                ...comment,
-                _id: comment._id,
-                commentFromUserId: comment.commentFromUserId,
-                commentToArtId: comment.commentToArtId,
-                commentContent: comment.commentContent
-            }));
-            setComments(commentsData);
-            })
-            .catch((error) => console.error('Error fetching comments:', error));
-        }, []);
+    // useEffect(() => {
+    //     fetch('http://localhost:4000/comments')
+    //         .then((response) => response.json())
+    //         .then((data) => {
+    //         const commentsData = data.data.map((comment: Comments) => ({
+    //             ...comment,
+    //             _id: comment._id,
+    //             commentFromUserId: comment.commentFromUserId,
+    //             commentToArtId: comment.commentToArtId,
+    //             commentContent: comment.commentContent
+    //         }));
+    //         setComments(commentsData);
+    //         })
+    //         .catch((error) => console.error('Error fetching comments:', error));
+    //     }, []);
 
     const [filteredComments, setFilteredComments] = useState<Comments[]>([]);
 
