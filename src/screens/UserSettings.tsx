@@ -33,11 +33,16 @@ const UserSettings: React.FC<UserSettingProps> = () => {
     const [userData, setUserData] = useState<UserData []>([]);
     const [searchData, setSearchData] = useState('');
     const { curUserId } = useGlobalContext();
+    const [profilePhoto, setProfilePhoto] = useState(false);
+    const [curUserName, setCurName] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [curPhone, setCurPhone] = useState('');
+    const [curIntroduction, setCurIntroduction] = useState('');
+    const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
     
     // fetch user data
-    /*
     useEffect(() => {
-        fetch(`http://localhost:4000/users?where={"userId":"${userName}"}`)
+        fetch(`http://localhost:4000/users?where={"userId":"${curUserId}"}`)
           .then((response) => response.json())
           .then((data) => {
             const userProcessing = data.data.map((user: UserData) => ({
@@ -59,7 +64,6 @@ const UserSettings: React.FC<UserSettingProps> = () => {
           })
           .catch((error) => console.error('Error fetching likes:', error));
       }, []);
-      */
 
     const handleTagRemove = (targetTag: string) => {
         const updatedTags = tagsList.filter(tag => tag !== targetTag);
@@ -80,154 +84,361 @@ const UserSettings: React.FC<UserSettingProps> = () => {
 
     const handleLogout = () => {
       navigation.navigate('LoginPage');
-    }
+    };
+
+    const goBack = () => {
+      navigation.goBack();
+    };
+    const handleUploadPhoto = () => {
+      setProfilePhoto(true);
+    };
+    const LogoImg = () => {
+      return (
+        <Image source={require('../assets/logo.png')} style={{marginTop: 8, marginBottom: 8, marginRight: 15, width: 80, height: 20}}></Image>
+      )
+    };
+    const handlePreferenceSelect = (preference: string) => {
+      const isSelected = selectedPreferences.includes(preference);
+      const updatedPreferences = isSelected
+        ? selectedPreferences.filter((selected) => selected !== preference)
+        : [...selectedPreferences, preference];
+  
+      setSelectedPreferences(updatedPreferences);
+    };
 
     return (
-        <View style={{flex: 1}}>
-            <View style={styles.topBar}>
-                <Ionicons name='arrow-back' size={35} style={{ position:'absolute', left: 10}}
-                onPress={() => navigation.goBack()}/>
-                <Text style={{fontSize: 30, alignSelf: 'center'}}>
-                    Settings
-                </Text>
+        <View style={styles.container}>
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.iconView} onPress={goBack}>
+                <Ionicons name='chevron-back-outline' size={35} color='#5364B7' />
+              </TouchableOpacity>
+              <View style={styles.textHeader}>
+                <Text style={{fontWeight: '500', fontSize: 18}}>Edit Profile</Text>
+              </View>
+              <LogoImg/>
             </View>
-            <View style={styles.imageContainer}>
-                <Image
-                        source={{uri: `http://localhost:4000/images/${curUserId}.png`}}
-                        style={styles.imageStyle}
+
+            {/* Scrollable */}
+            <ScrollView contentContainerStyle={styles.containerScrollView}>
+              <TouchableOpacity style={styles.profilePictureContainer} onPress={handleUploadPhoto}>
+                <Image 
+                  style={{height: 90, width: 90, borderRadius: 50}} 
+                  source={{uri: `http://localhost:4000/images/${userData[0]?.userProfileImgAddress}`}}
                 />
-                <Text style={{marginTop: 5, fontSize: 12}}>Edit Profile Photo</Text>
-            </View>
-            <View style={styles.infoContainer}>
-                <Text style={{fontSize: 25}}>Bio Information:</Text>
-                <View style={styles.textField}>
-                    <Text style={{fontSize: 15}}>Name</Text>
-                    <View style={styles.grayLine}>
-                        <Text style={styles.textAbove}>Nathan Junipero</Text>
-                    </View>
-                </View>
-                <View style={styles.textField}>
-                    <Text style={{fontSize: 15}}>Phone</Text>
-                    <View style={styles.grayLine}>
-                        <Text style={styles.textAbove}>1234567899</Text>
-                    </View>
-                </View>
-                <View style={styles.textField}>
-                    <Text style={{fontSize: 15}}>Introduction</Text>
-                    <View style={styles.grayLine}>
-                        <Text style={styles.textAbove}>Photographer</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.infoContainer}>
-                <Text style={{fontSize: 25}}>Account Information:</Text>
-                <View style={styles.textField}>
-                    <Text style={{fontSize: 15}}>Email</Text>
-                    <View style={styles.grayLine}>
-                        <Text style={styles.textAbove}>nathan_j_composer@aol.com</Text>
-                    </View>
-                </View>
+                <Text style={styles.uploadPhotoText}>Upload Photo</Text>
+                {profilePhoto === true ? <Text style={{color: 'red', top: 15}}>New photo uploaded (hard-coded)</Text> : null}
+              </TouchableOpacity>
+              <View style={styles.infoContainer}>
+                  <Text style={{fontSize: 25}}>Bio Information:</Text>
+                  <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>Name: firstName LastName</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholder={userData[0]?.userName}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View>
+                  <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>Phone:</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholder={userData[0]?.userPhone?.toString()}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View>
+                  <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>Introduction:</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholder={userData[0]?.userPreferenceTags.join(', ')}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View>
+              </View>
+              <View style={styles.infoContainer}>
+                  <Text style={{fontSize: 25}}>Account Information:</Text>
+                  <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>Email: example@outlook.com</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholder={userData[0]?.userEmail}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View>
+                  {/* <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>Old Password</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View> */}
+                  <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>New Password</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View>
+                  <View style={styles.textField}>
+                      <Text style={{fontSize: 15}}>Comfirm New Password</Text>
+                      <View>
+                          <TextInput
+                            style={styles.input}
+                            placeholderTextColor="rgba(0, 0, 0, 0.48)"
+                            onChangeText={(text) => setCurName(text)}
+                            autoCapitalize="none"
+                          />
+                      </View>
+                  </View>
 
-                <View style={styles.textField}>
-                    <Text style={{fontSize: 15}}>Password</Text>
-                    <View style={styles.grayLine}>
-                        <Text style={styles.textAbove}>*************</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={[styles.infoContainer, { height: 260}]}>
-                <Text style={{fontSize: 25}}>Preferences:</Text>
-                <View style={styles.searchContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Search"
-                        value={searchData}
-                        onChangeText={(text) => setSearchData(text)}
-                        autoCapitalize="none"
-                    />
-                    {searchData ? (
-                        <Pressable style={styles.add} onPress={handleNewTag}>
-                            <Text style={{color: 'white', fontSize: 15}}>Add</Text>
-                        </Pressable>
-                    ) : (
-                        <View style={styles.add}>
-                            <Text style={{color: 'gray', fontSize: 15}}>Add</Text>
-                        </View>
+              </View>
+              <View style={[styles.infoContainer, { height: 260}]}>
+                  <Text style={{fontSize: 25}}>Preferences:</Text>
+                  <View style={styles.searchPreferencesContainer}>
+                    <Pressable
+                        style={[
+                        styles.input,
+                        { alignItems: 'flex-start' },
+                        selectedPreferences.length > 0 && styles.selectedPreferencesContainer,
+                      ]}
+                      onPress={() => setModalVisible(true)}>
+                      <Text
+                        style={[
+                          styles.selectedPreferencesText,
+                          {
+                            color:
+                              selectedPreferences.length > 0
+                                ? styles.selectedPreferencesText.color
+                                : 'rgba(0, 0, 0, 0.48)',
+                            fontStyle:
+                              selectedPreferences.length > 0
+                                ? styles.selectedPreferencesText.fontStyle
+                                : 'italic',
+                            marginTop: 7,
+                          },
+                        ]}>
+                        {selectedPreferences.length > 0
+                          ? selectedPreferences.join(', ')
+                          : 'Select Preferences'}
+                      </Text>
+                    </Pressable>
+                    {modalVisible && (
+                      <View style={styles.preferenceButtonsContainer}>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('poetry') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('poetry')}>
+                          <Text style={styles.preferenceButtonText}>poetry</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('photography') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('photography')}>
+                          <Text style={styles.preferenceButtonText}>photography</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('paintings') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('paintings')}>
+                          <Text style={styles.preferenceButtonText}>paintings</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('water color') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('water color')}>
+                          <Text style={styles.preferenceButtonText}>water color</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('drawings') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('drawings')}>
+                          <Text style={styles.preferenceButtonText}>drawings</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('pencil art') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('pencil art')}>
+                          <Text style={styles.preferenceButtonText}>pencil art</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('writing') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('writing')}>
+                          <Text style={styles.preferenceButtonText}>writing</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.preferenceButton,
+                            selectedPreferences.includes('music') && styles.selectedPreferenceButton,
+                          ]}
+                          onPress={() => handlePreferenceSelect('design')}>
+                          <Text style={styles.preferenceButtonText}>design</Text>
+                        </TouchableOpacity>
+                      </View>
                     )}
+                  </View>
                 </View>
 
-                <ScrollView contentContainerStyle={styles.tagsScroll} horizontal={false}>
-                    {tagsList.map((tag, index) => (
-                        <View key={index} style={styles.tagsContainer}>
-                            <View style={styles.bubble}>
-                                <Text style={styles.tag}>{tag}</Text>
-                            </View>
-                            <TouchableOpacity style={{paddingTop: 10}} onPress={() => handleTagRemove(tag)}>
-                                <Ionicons name='close' size={25} color='#A0A0A0'/>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </ScrollView>  
-                
-                {changeMade ? (
-                    <TouchableOpacity 
-                    style={styles.saveContainer} 
-                    activeOpacity={0.7}
-                    onPress={() => handleSavePressed()}>
-                        <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Save</Text>
-                    </TouchableOpacity>
-                ) : (
-                    <View style={styles.saveContainer}>
-                        <Text style={{color: '#D4D4D4', fontSize: 18, fontWeight: 'bold'}}>Save</Text>
-                    </View>
-                )}
-
+              <Modal 
+                  animationIn='pulse'
+                  animationOut='fadeOut'
+                  isVisible={showPopup}
+                  onBackdropPress={() => setShowPopup(false)}
+                  style={{alignSelf: 'center'}}
+              >
+                  <View style={styles.popUpBox}>
+                      <Text style={{fontSize: 20, color: 'white', fontWeight: 'bold'}}>Save Complete!</Text>
+                      <View style={styles.popUpLine1} />
+                      <View style={styles.options}>
+                          <TouchableOpacity onPress={() => navigation.goBack()}>
+                              <Text style={{fontSize: 20, color: 'white', left: 4}}>To Profile</Text>
+                          </TouchableOpacity>
+                          <View style={styles.popUpLine2}/>
+                          
+                          <TouchableOpacity onPress={() => setShowPopup(false)}>
+                              <Text style={{fontSize: 20, color: 'white', left: 4}}>To Settings</Text>
+                          </TouchableOpacity>
+                      </View>
+                  </View>
+              </Modal>
+              <View style={styles.buttoms}>
+                <TouchableOpacity 
+                  style={styles.saveContainer} 
+                  activeOpacity={0.7}
+                  onPress={() => handleSavePressed()}>
+                      <Text style={{color: 'white', fontSize: 18, fontWeight: 'bold'}}>Save</Text>
+                  </TouchableOpacity>
                 <TouchableOpacity onPress={handleLogout}>
                   <View style={styles.logOutContainer}>
                       <Text style={{color: '#5364B7', fontSize: 18, fontWeight: 'bold'}}>Log out</Text>
                   </View>
                 </TouchableOpacity>
-            </View>
-
-            <Modal 
-                animationIn='pulse'
-                animationOut='fadeOut'
-                isVisible={showPopup}
-                onBackdropPress={() => setShowPopup(false)}
-                style={{alignSelf: 'center'}}
-            >
-                <View style={styles.popUpBox}>
-                    <Text style={{fontSize: 20, color: 'white', fontWeight: 'bold'}}>Save Complete!</Text>
-                    <View style={styles.popUpLine1} />
-                    <View style={styles.options}>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <Text style={{fontSize: 20, color: 'white', left: 4}}>To Profile</Text>
-                        </TouchableOpacity>
-                        <View style={styles.popUpLine2}/>
-                        
-                        <TouchableOpacity onPress={() => setShowPopup(false)}>
-                            <Text style={{fontSize: 20, color: 'white', left: 4}}>To Settings</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+              </View>
+            </ScrollView>
         </View>
 
     );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'column',
+    justifyContent: 'flex-start', 
+    alignItems: 'flex-start'
+  },
   imageContainer: {
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 110,
   },
+  containerScrollView: {
+    width: 430,
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    // alignItems: 'center',
+    // justifyContent: 'center',
+  },
+  iconView: {
+    width: 40,
+    marginRight: 40,
+    marginLeft: 8,
+    left: 0,
+    marginTop: 10,
+    zIndex: 1,
+  },
+  textHeader: {
+    // backgroundColor: 'green',
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 22,
+    marginRight: 18,
+    marginTop: 9,
+    marginBottom: 10,
+  },
+  selectedPreferencesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    color: '#000000',
+    fontStyle: 'normal',
+  },
+  header: {
+    width: '100%',
+    backgroundColor: 'white',
+    // height: 90,
+    paddingTop: 54,
+    flexDirection: 'row',
+    // alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profilePictureContainer: {
+    alignItems: 'center',
+    top: 10,
+    // backgroundColor: 'red',
+    width: '100%'
+  },
+  searchPreferencesContainer: {
+    marginBottom: 10,
+  },
   imageStyle: {
     marginTop: 15,
     width: 100,
     height: 100,
     borderRadius: 200
+  },
+  selectedPreferencesText: {
+    color: '#000000',
+    fontStyle: 'normal',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#5364B7',
+    borderRadius: 10,
+    height: 33,
+    fontSize: 15,
+    fontStyle: 'italic',
+    paddingLeft: 10,
+    marginBottom: 17,
+    backgroundColor: 'rgba(234, 233, 233, 0.38)'
   },
   topBar: {
     position: 'absolute', 
@@ -241,14 +452,21 @@ const styles = StyleSheet.create({
     width: '80%',
     alignSelf: 'center',
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 0,
     // backgroundColor: 'gray'
   },
   textField: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between',
+    flexDirection: 'column', 
+    justifyContent: 'flex-start',
     marginTop: 7,
+    marginBottom: -17,
     width: "100%",
+  },
+  preferenceButtonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    marginTop: -10,
   },
   grayLine: {
     borderBottomWidth: 2,
@@ -273,6 +491,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignItems: 'center'
   },
+  uploadPhotoText: {
+    color: '#5364B7',
+    fontSize: 12,
+    marginTop: 5,
+  },
   bubble: {
     marginTop: 10,
     borderRadius: 25,
@@ -281,6 +504,9 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     width: '60%',
     height: 35
+  },
+  selectedPreferenceButton: {
+    backgroundColor: '#5364B7',
   },
   tag: {
     marginLeft: 8,
@@ -310,6 +536,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -10,
     zIndex: 1
+  },
+  preferenceButton: {
+    backgroundColor: '#999898',
+    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    margin: 5,
   },
   logOutContainer: {
     flexDirection: 'row',
@@ -353,9 +586,8 @@ const styles = StyleSheet.create({
     left: "50%",
     top: -10
   },
-  input: {
-    marginLeft: 8, 
-    fontSize: 15,
+  preferenceButtonText: {
+    color: 'white',
   },
   add: {
     width: 60,

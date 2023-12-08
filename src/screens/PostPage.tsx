@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView,
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
+import { useGlobalContext } from '../../GlobalContext';
 
 type SearchPageRouteProp = RouteProp<RootStackParamList, 'ArtistProfilePage'>;
 type SearchPageNavigationProp = NavigationProp<RootStackParamList, 'ArtistProfilePage'>;
@@ -12,16 +13,56 @@ const PostPage: React.FC = () => {
   const [titleData, setTitleData] = useState<string>('')
   const [captionData, setCaptionData] = useState<string>('')
   const [tagAddData, setTagAddData] = useState<string>('')
+  const [artAddress, setArtAddress] = useState<String>('');
+  const { curUserId } = useGlobalContext();
 
   const handleNewTag = () => {
     console.log(tagAddData);
   }
 
+  const postArtData = async () => {
+    const tagList = tagAddData.split(", ").map(tag => tag.toLowerCase());
+    
+    try {
+      const artObject = {
+        userId: curUserId,
+        userName: 'tester',
+        artTitle: titleData,
+        artContent: captionData, // caption
+        artAddress: artAddress, // image path
+        artTags: tagList,
+        width: 500,
+        height: 332,
+      };
+      const response_user = await fetch('http://localhost:4000/arts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(artObject),
+      });
+      if (response_user.status !== 201){
+        const responseBody = await response_user.json();
+        console.error('Post art failed:', responseBody.message);
+      }
+    } catch(error) {
+      console.log("Post art error: ", error);
+    }
+    
+  }
+
   return (
     <ScrollView contentContainerStyle={{ flex: 1, marginLeft: 20, marginRight: 20}}>
       <Text style={styles.titles}>Choose Art</Text>
-      <TouchableOpacity style={styles.artUpload}>
-        <Ionicons name="add-circle-outline" size={60} color="#5364B7"/>
+      <TouchableOpacity style={styles.artUpload} onPress={()=> setArtAddress('default_art.png')}>
+        {artAddress ? (
+          <Image 
+            source={require('../assets/icons/default_art.png')}
+            style={{ height: '100%', width: '100%', borderRadius: 10 }}
+          />
+        ) : (
+          <Ionicons name="add-circle-outline" size={60} color="#5364B7"/>
+        )}
       </TouchableOpacity>
 
       <View>
@@ -30,7 +71,8 @@ const PostPage: React.FC = () => {
           <TextInput
             value={titleData}
             style={{fontSize: 15, marginLeft: 8}}
-            placeholder="Text"
+            placeholder="The title of your art"
+            placeholderTextColor="rgba(0, 0, 0, 0.48)"
             autoCapitalize="none"
             onChangeText={(text) => setTitleData(text)}
           />
@@ -43,7 +85,8 @@ const PostPage: React.FC = () => {
             <TextInput
               value={captionData}
               style={{fontSize: 15, marginLeft: 8, marginBottom: 5}}
-              placeholder="Caption"
+              placeholder="A short description of your art"
+              placeholderTextColor="rgba(0, 0, 0, 0.48)"
               autoCapitalize="none"
               onChangeText={(text) => setCaptionData(text)}
               multiline
@@ -53,15 +96,16 @@ const PostPage: React.FC = () => {
 
       <View>
         <Text style={styles.titles}>Add Tags: </Text>
-        <View style={[styles.largeInput, {width: '82%'}]}>
+        <View style={[styles.largeInput]}>
           <TextInput
               style={{fontSize: 15, marginLeft: 8, marginBottom: 2}}
-              placeholder="Tags"
+              placeholder="For multiple, separate with ',' (e.g. painting, design)"
+              placeholderTextColor="rgba(0, 0, 0, 0.48)"
               value={tagAddData}
               onChangeText={(text) => setTagAddData(text)}
               autoCapitalize="none"
           />
-          {tagAddData ? (
+          {/* {tagAddData ? (
               <Pressable style={styles.add} onPress={handleNewTag}>
                   <Text style={{color: 'white', fontSize: 15}}>Add</Text>
               </Pressable>
@@ -69,10 +113,10 @@ const PostPage: React.FC = () => {
               <View style={styles.add}>
                   <Text style={{color: 'gray', fontSize: 15}}>Add</Text>
               </View>
-          )}
+          )} */}
         </View>
       </View>
-      <TouchableOpacity style={styles.post}>
+      <TouchableOpacity style={styles.post} onPress={postArtData}>
         <Text style={{fontSize: 20, color: 'white'}}>Post</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -81,7 +125,8 @@ const PostPage: React.FC = () => {
 
 const styles = StyleSheet.create({ 
   titles: {
-    fontSize: 25,
+    fontSize: 20,
+    fontWeight: '500',
     marginTop: 10
   }, 
   skinnyInput: {
@@ -128,7 +173,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#5364B7',
     marginTop: 25,
-    borderRadius: 25
+    borderRadius: 10
   },
   artUpload: {
     marginTop: 10,
