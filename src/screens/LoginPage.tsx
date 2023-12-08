@@ -34,7 +34,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ navigation }) => {
 
     if (user && user.userPassword === password) {
         setError('');
-        navigation.navigate('Home');
+        navigation.navigate('Home', {
+            showOnboarding: false
+        });
     } else {
         setError('Invalid user ID or password')
     }
