@@ -26,6 +26,7 @@ const RegistrationPage = () => {
 
   const handleNextPress = async () => {
     const userPhone = parseInt(phone.replace(/-/g, ''))
+    const userTags = tags.split(',').map(tag => tag.trim());
     try {
       const userObject = {
         userId: userId,
@@ -34,7 +35,7 @@ const RegistrationPage = () => {
         userEmail: email,
         userPhone: userPhone,
         userProfileImgAddress: '',
-        userPreferenceTags: tags,
+        userPreferenceTags: userTags,
         tags: selectedPreferences,
       };
 
@@ -46,8 +47,8 @@ const RegistrationPage = () => {
         body: JSON.stringify(userObject),
       });
 
-      if (response.status === 201) {
-        navigation.navigate('OnboardingPage1');
+      if (response.status === 201 || 200) {
+        navigation.navigate('Home', { showOnboarding: true } );
       } else {
         const responseBody = await response.json();
         console.error('Registration failed:', responseBody.message);

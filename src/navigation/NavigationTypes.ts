@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-    Home: undefined;
+    Home: { showOnboarding: boolean };
     DetailPage: { data: { 
         artId: string; 
         userId: string;
@@ -55,7 +55,5 @@ export type RootStackParamList = {
     RegistrationPage: undefined,
     ProfilePage: undefined,
     UserSettings: undefined,
-    OnboardingPage1: undefined,
-    OnboardingPage2: undefined,
     PostPage: undefined
   };
