@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
   loginText: {
     color: 'white',
     fontSize: 15,
+    fontWeight: 'bold'
   },
   noAccText: {
     color: 'black',
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '25%',
     height: '4%',
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: '#5364B7',
     // backgroundColor: 'rgba(83, 100, 183, 0.8)',
     alignItems: 'center',

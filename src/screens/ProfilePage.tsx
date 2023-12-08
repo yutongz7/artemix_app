@@ -119,7 +119,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const filtered = arts.filter(art => art.userId === curUserId);
     setUserArt(filtered);
-  }, [arts, curUserId]);
+  }, [arts]);
 
   const fetchLikesData = async () => {
     try {
@@ -150,6 +150,7 @@ const ProfilePage: React.FC = () => {
     setCurUserPhone(data.data[0].userPhone);
     setCurUserPreferenceTags(data.data[0].userPreferenceTags);
     setCurUserProfileImgAddress(data.data[0].userProfileImgAddress);
+    console.log("img address: ", curUserProfileImgAddress)
   }
 
   useEffect(() => {
@@ -251,13 +252,19 @@ const ProfilePage: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    if (curTag === 'Artists' && curArtistIds.length > 0) {
+      getArtistData();
+    }
+  }, [curTag, curArtistIds]); 
+
   const renderContent = () => {
     if (curTag === 'YourArts') {
       // Render user's art posts
       return (
         <ScrollView contentContainerStyle={styles.container} horizontal={false}>
           {(userArt.length === 0) ? (
-            <Text style={styles.noContent}>No posts yet.</Text>
+            <View><Text style={styles.artistContent}>No posts yet.</Text></View>
           ) : (
             userArt.map((item) => (
               <TouchableOpacity
@@ -304,15 +311,17 @@ const ProfilePage: React.FC = () => {
         </ScrollView>
       );
     } else if (curTag === 'Artists') {
-      if (curArtistIds.length == 0) {
-        getLikedlData();
-      }
-      if (curArtistList.length == 0) {
-        getArtistData();
-      }
+      // if (curArtistIds.length == 0) {
+      //   getLikedlData();
+      // }
+      // if (curArtistList.length == 0) {
+      //   getArtistData();
+      // }
       return (
         <ScrollView contentContainerStyle={styles.lineContainer} horizontal={false}>
-          {curArtistList?.map((item) => (
+          {(curLikedArt.length === 0) ? (
+            <View style={{ top: 2, marginLeft: 70,}}><Text style={styles.noContent}>No artists recommenation yet.</Text></View>
+          ) : ( curArtistList?.map((item) => (
             <View key={item._id}>
               <View style={styles.itemContainer}>
                 <TouchableOpacity key={item._id} onPress={() => handleArtistsProfile(item)}>
@@ -331,7 +340,7 @@ const ProfilePage: React.FC = () => {
               </View>
               <View style={styles.lineDivider} />
             </View>
-          ))}
+          )))}
         </ScrollView>
       )
     }
@@ -342,7 +351,7 @@ const ProfilePage: React.FC = () => {
     <View>
       <View style={styles.bioInfo}>
         <Image
-                source={{uri: `http://localhost:4000/images/${curUserId}.png`}}
+                source={{uri: `http://localhost:4000/images/${curUserProfileImgAddress}`}}
                 style={styles.imageStyle}
         />
         <Text style={{fontSize: 30, marginTop: 10}}>{curUserName}</Text>
@@ -518,6 +527,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 10
   },
+  artistContent: {
+    fontSize: 20,
+  },
   dividerTouchable: {
     height: 3,
     width: 100,
@@ -533,7 +545,7 @@ const styles = StyleSheet.create({
   settingsContainer: {
     position: 'absolute', 
     bottom: 70, 
-    left: 110, 
+    left: 106, 
     backgroundColor:'#5364B7',
     width: 35,
     height: 35,
