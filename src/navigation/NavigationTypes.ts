@@ -1,5 +1,7 @@
 export type RootStackParamList = {
     Home: { showOnboarding: boolean };
+    OnboardingHomePage: { showOnboarding: boolean };
+    OnboardingNavBar: undefined,
     DetailPage: { data: { 
         artId: string; 
         userId: string;
@@ -37,7 +39,6 @@ export type RootStackParamList = {
     InboxPage: undefined,
     ChatPage: {
         data: {
-            _id: string;
             userId: string;
             userName: string;
             userProfileImgAddress: string;

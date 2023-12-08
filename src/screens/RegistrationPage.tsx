@@ -23,6 +23,7 @@ const RegistrationPage = () => {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(false);
   const { setCurUserId } = useGlobalContext();
 
   const goBack = () => {
@@ -59,6 +60,7 @@ const RegistrationPage = () => {
       setEmailError(false);
       const userPhone = parseInt(phone.replace(/-/g, ''))
       const userPreferenceTagsList = tags.split(", ");
+      const imgAddress = profilePhoto ? '../assets/icons/profile_photo.png' : ''
       try {
         const userObject = {
           userId: userId,
@@ -66,7 +68,7 @@ const RegistrationPage = () => {
           userPassword: password,
           userEmail: email,
           userPhone: userPhone,
-          userProfileImgAddress: '',
+          userProfileImgAddress: imgAddress,
           userPreferenceTags: userPreferenceTagsList,
           tags: selectedPreferences,
         };
@@ -107,9 +109,7 @@ const RegistrationPage = () => {
         });
 
         if (response_like.status === 201 && response_user.status === 201 && response_recommendArtists.status === 201) {
-          navigation.navigate('Home', {
-            showOnboarding: true
-          });
+          navigation.navigate('OnboardingNavBar');
         } else {
           if (response_like.status !== 201){
             const responseBody = await response_like.json();
@@ -141,14 +141,17 @@ const RegistrationPage = () => {
     setSelectedPreferences(updatedPreferences);
   };
 
+  const handleUploadPhoto = () => {
+    setProfilePhoto(true);
+  }
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.iconView} onPress={goBack}>
         <Ionicons name='chevron-back-outline' size={35} color='#5364B7'/>
       </TouchableOpacity>
       <Image style={{ alignSelf: 'center', height: 75, width: 260 }} source={require('../assets/logo.png')}></Image>
-      <TouchableOpacity style={styles.profilePictureContainer}>
-        <Image style={{height: 90, width: 90, borderRadius: 50}} source={require('../assets/icons/blank_profile.png')}></Image>
+      <TouchableOpacity style={styles.profilePictureContainer} onPress={handleUploadPhoto}>
+        <Image style={{height: 90, width: 90, borderRadius: 50}} source={profilePhoto ? require('../assets/icons/profile_photo.png') : require('../assets/icons/blank_profile.png')}></Image>
         <Text style={styles.uploadPhotoText}>Upload Photo</Text>
       </TouchableOpacity>
 
