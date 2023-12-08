@@ -12,9 +12,12 @@ import ChatPage from './src/screens/ChatPage';
 import ArtistProfilePage from './src/screens/ArtistProfilePage';
 import ProfilePage from './src/screens/ProfilePage';
 import UserSettings from './src/screens/UserSettings';
+import PostPage from './src/screens/PostPage';
 import { RootStackParamList } from './src/navigation/NavigationTypes';
+import { LogBox } from "react-native"
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+LogBox.ignoreAllLogs(true);
 
 const App = () => {
   return (
@@ -36,6 +39,7 @@ const App = () => {
         <Stack.Screen name="ChatPage" component={ChatPage} />
         <Stack.Screen name="ProfilePage" component={ProfilePage} />
         <Stack.Screen name="UserSettings" component={UserSettings} />
+        <Stack.Screen name="PostPage" component={PostPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

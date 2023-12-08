@@ -25,22 +25,27 @@ export type RootStackParamList = {
         artTags: {type: [String], default: []};
         width: number;
         height: number;
-        artistTags: string[];
     }};
     ArtistProfilePage: { data: {
+        _id: string;
         userId: string;
         userName: string;
+        userPassword: string;
+        userEmail: string;
+        userPhone: number;
         userProfileImgAddress: string;
         userPreferenceTags: string[];
-        userTags: string[];
-        screen: string,
+        tags: string[];
     }},
     LoginPage: undefined,
     InboxPage: undefined,
     ChatPage: {
         data: {
+            _id: string;
             userId: string;
             userName: string;
+            userPassword: string;
+            userEmail: string;
             userPhone: number;
             userProfileImgAddress: string;
             userPreferenceTags: string[];
@@ -52,4 +57,5 @@ export type RootStackParamList = {
     UserSettings: undefined,
     OnboardingPage1: undefined,
     OnboardingPage2: undefined,
+    PostPage: undefined
   };
