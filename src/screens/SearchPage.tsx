@@ -171,22 +171,44 @@ const SearchPage: React.FC = () => {
     })
   };
 
+  const autoSearch = (input:string) => {
+    setSearchQuery(input);
+    handleSearch();
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <View>
-          <Ionicons name='search-outline' size={30} color='#5364B7' style={styles.searchIcon}/>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search"
-            placeholderTextColor="#888888"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
+      <View style={styles.searchPageTools}>
+        <View style={styles.searchContainer}>
+          <View>
+            <Ionicons name='search-outline' size={30} color='#5364B7' style={styles.searchIcon}/>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Try 'photography'"
+              placeholderTextColor="#888888"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+            <Text style={styles.buttonText}>Search</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
+        
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+          <TouchableOpacity style={styles.tagButton} onPress={()=>{autoSearch('Painting')}}>
+            <Text style={styles.tagText}>↗ Painting</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.tagButton} onPress={()=>{autoSearch('Sculpture')}}>
+            <Text style={styles.tagText}>↗ Sculpture</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.tagButton} onPress={()=>{autoSearch('Drawing')}}>
+            <Text style={styles.tagText}>↗ Drawing</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.tagButton} onPress={()=>{autoSearch('Still Life')}}>
+            <Text style={styles.tagText}>↗ Still Life</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       {renderContent()}
     </View>
@@ -206,6 +228,11 @@ const styles = StyleSheet.create({
     left: 5,
     top: 4,
     zIndex: 1,
+  },
+  searchPageTools: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -245,8 +272,23 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     borderRadius: 10,
   },
+  tagButton: {
+    // backgroundColor: 'white',
+    borderColor: '#5364B7',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: -20,
+    marginLeft: 5,
+    marginEnd: 5,
+    height: 38,
+  },
   buttonText: {
     color: 'white',
+    textAlign: 'center',
+  },
+  tagText: {
+    color: '#5364B7',
     textAlign: 'center',
   },
   iconView: {
