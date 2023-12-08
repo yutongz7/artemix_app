@@ -50,4 +50,5 @@ export type RootStackParamList = {
     RegistrationPage: undefined;
     ProfilePage: undefined;
     UserSettings: undefined;
+    PostPage: undefined;
   };
