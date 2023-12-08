@@ -50,6 +50,15 @@ export type RootStackParamList = {
     OnboardingPage2: undefined;
     RegistrationPage: undefined;
     ProfilePage: undefined;
-    UserSettings: undefined;
+    UserSettings: {
+        data: {
+            userName: string;
+            userPreferenceTags: string[];
+            userEmail: string;
+            userTags: string[];
+            userProfileImgAddress: string;
+            userPhone: string;
+        }
+    };
     PostPage: undefined;
   };

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, TextInput, Pressable} from 'react-native';
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal'
 import { useGlobalContext } from '../../GlobalContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 type UserSettingsNavigationProp = NavigationProp<RootStackParamList, 'UserSettings'>;
 type UserSettingsRouteProp = RouteProp<RootStackParamList, 'UserSettings'>;
@@ -24,7 +25,15 @@ interface UserData {
     tags: string[],
 }
 
-const UserSettings: React.FC<UserSettingProps> = () => {
+const UserSettings: React.FC<UserSettingProps> = ({ route }) => {
+    const userEmail = route.params.data.userEmail;
+    const userPreferenceTags = route.params.data.userPreferenceTags;
+    const userName = route.params.data.userName;
+    const userPhone = route.params.data.userPhone;
+    const userTags = route.params.data.userTags;
+    const [selectedPreferences, setSelectedPreferences] = useState<string[]>(userTags);
+    const userProfileImageAddress = route.params.data.userProfileImgAddress;
+
     const navigation = useNavigation<UserSettingsNavigationProp>();
     const startingTags: string[] = ['Poetry', 'Photography', 'Paintings', 'Water Color', 'Drawings', 'Pencil Art'];
     const [changeMade, setChangeMade] = useState(false);
@@ -34,36 +43,45 @@ const UserSettings: React.FC<UserSettingProps> = () => {
     const [searchData, setSearchData] = useState('');
     const { curUserId } = useGlobalContext();
     const [profilePhoto, setProfilePhoto] = useState(false);
-    const [curUserName, setCurName] = useState('');
+    const [curUserName, setCurName] = useState(userName);
     const [modalVisible, setModalVisible] = useState(false);
-    const [curPhone, setCurPhone] = useState('');
-    const [curIntroduction, setCurIntroduction] = useState('');
-    const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
+    const [checkError, setCheckError] = useState(false);
+    const [curPhone, setCurPhone] = useState(userPhone);
+    const [curIntroduction, setCurIntroduction] = useState(selectedPreferences.join(', '));
+    const [curEmail, setCurEmail] = useState(userEmail);
+    const [curPassword, setCurPassword] = useState('');
+    const [curConfirmPassword, setCurConfirmPassword] = useState('');
+    
     
     // fetch user data
-    useEffect(() => {
+    useFocusEffect(
+      useCallback(() => {
+        // Your fetch call and other logic
         fetch(`http://localhost:4000/users?where={"userId":"${curUserId}"}`)
           .then((response) => response.json())
           .then((data) => {
             const userProcessing = data.data.map((user: UserData) => ({
               ...user,
-              userId: user.userId,
-              userName: user.userName,
-              userPassword: user.userPassword,
-              userEmail: user.userEmail,
-              userPhone: user.userPhone,
-              userProfileImgAddress: user.userProfileImgAddress,
-              userPreferenceTags: user.userPreferenceTags,
-              tags: user.tags,
+              // ...rest of your user properties
             }));
             setUserData(userProcessing);
-
-            console.log(userData);
-            const buffer = userData[0].tags
-            setTagsList(buffer);
+            console.log("UserData = ", userProcessing)
+            setSelectedPreferences(userProcessing[0].tags);
+            setCurEmail(userProcessing[0].userEmail);
+            setCurPassword(userProcessing[0].userPassword);
+            setCurConfirmPassword(userProcessing[0].userPassword);
+            console.log("tags: ", userProcessing[0].tags);
+            setCurIntroduction(userProcessing[0].tags.join(', '));
+            // ...rest of your logic
           })
+
           .catch((error) => console.error('Error fetching likes:', error));
-      }, []);
+  
+        return () => {
+          // Optional cleanup function
+        };
+      }, [])
+    );
 
     const handleTagRemove = (targetTag: string) => {
         const updatedTags = tagsList.filter(tag => tag !== targetTag);
@@ -71,8 +89,40 @@ const UserSettings: React.FC<UserSettingProps> = () => {
         setChangeMade(true);
     }
 
-    const handleSavePressed = () => {
-        setShowPopup(true);
+    const handleSavePressed = async () => {
+        // setShowPopup(true);=
+        if (curPassword !== curConfirmPassword) {
+          setCheckError(true);
+        } else {
+          setCheckError(false);
+        }
+        // post
+        console.log("post")
+        const userObject = {
+          userId: curUserId,
+          userName: curUserName,
+          userPassword: curPassword,
+          userEmail: curEmail,
+          userPhone: curPhone,
+          userProfileImgAddress: userProfileImageAddress,
+          userPreferenceTags: curIntroduction.split(", ").map(tag => tag.toLowerCase()),
+          tags: selectedPreferences,
+        };
+        const response_user = await fetch('http://localhost:4000/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userObject),
+        });
+        console.log("response_user: ", response_user)
+
+        if (response_user.status === 200) {
+          navigation.goBack();
+        } else {
+          const responseBody = await response_user.json();
+          console.error('Update user failed:', responseBody.message);
+        }
     }
 
     const handleNewTag = ()  => {
@@ -98,7 +148,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
       )
     };
     const handlePreferenceSelect = (preference: string) => {
-      const isSelected = selectedPreferences.includes(preference);
+      const isSelected = selectedPreferences?.includes(preference);
       const updatedPreferences = isSelected
         ? selectedPreferences.filter((selected) => selected !== preference)
         : [...selectedPreferences, preference];
@@ -123,7 +173,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
               <TouchableOpacity style={styles.profilePictureContainer} onPress={handleUploadPhoto}>
                 <Image 
                   style={{height: 90, width: 90, borderRadius: 50}} 
-                  source={{uri: `http://localhost:4000/images/${userData[0]?.userProfileImgAddress}`}}
+                  source={{uri: `http://localhost:4000/images/${userProfileImageAddress}`}}
                 />
                 <Text style={styles.uploadPhotoText}>Upload Photo</Text>
                 {profilePhoto === true ? <Text style={{color: 'red', top: 15}}>New photo uploaded (hard-coded)</Text> : null}
@@ -135,9 +185,13 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                       <View>
                           <TextInput
                             style={styles.input}
-                            placeholder={userData[0]?.userName}
+                            placeholder={userName}
                             placeholderTextColor="rgba(0, 0, 0, 0.48)"
-                            onChangeText={(text) => setCurName(text)}
+                            onChangeText={(text) => {
+                              if (text.trim() !== '') {
+                                setCurName(text);
+                              }
+                            }}
                             autoCapitalize="none"
                           />
                       </View>
@@ -147,9 +201,13 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                       <View>
                           <TextInput
                             style={styles.input}
-                            placeholder={userData[0]?.userPhone?.toString()}
+                            placeholder={"xxxxxxxxxx"}
                             placeholderTextColor="rgba(0, 0, 0, 0.48)"
-                            onChangeText={(text) => setCurName(text)}
+                            onChangeText={(text) => {
+                              if (text.trim() !== '') {
+                                setCurPhone(text);
+                              }
+                            }}
                             autoCapitalize="none"
                           />
                       </View>
@@ -161,7 +219,11 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                             style={styles.input}
                             placeholder={userData[0]?.userPreferenceTags.join(', ')}
                             placeholderTextColor="rgba(0, 0, 0, 0.48)"
-                            onChangeText={(text) => setCurName(text)}
+                            onChangeText={(text) => {
+                              if (text.trim() !== '') {
+                                setCurIntroduction(text);
+                              }
+                            }}
                             autoCapitalize="none"
                           />
                       </View>
@@ -174,9 +236,13 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                       <View>
                           <TextInput
                             style={styles.input}
-                            placeholder={userData[0]?.userEmail}
+                            placeholder={userEmail}
                             placeholderTextColor="rgba(0, 0, 0, 0.48)"
-                            onChangeText={(text) => setCurName(text)}
+                            onChangeText={(text) => {
+                              if (text.trim() !== '') {
+                                setCurEmail(text);
+                              }
+                            }}
                             autoCapitalize="none"
                           />
                       </View>
@@ -197,19 +263,35 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                       <View>
                           <TextInput
                             style={styles.input}
+                            secureTextEntry
                             placeholderTextColor="rgba(0, 0, 0, 0.48)"
-                            onChangeText={(text) => setCurName(text)}
+                            onChangeText={(text) => {
+                              if (text.trim() !== '') {
+                                setCurPassword(text);
+                              }
+                            }}
                             autoCapitalize="none"
                           />
                       </View>
                   </View>
+                  {checkError ? (
+                      <Text style={styles.passwordErrorText}>
+                        Passwords do not match. Please re-enter to confirm.
+                      </Text>
+                    ) : null}
+
                   <View style={styles.textField}>
                       <Text style={{fontSize: 15}}>Comfirm New Password</Text>
                       <View>
                           <TextInput
                             style={styles.input}
+                            secureTextEntry
                             placeholderTextColor="rgba(0, 0, 0, 0.48)"
-                            onChangeText={(text) => setCurName(text)}
+                            onChangeText={(text) => {
+                              if (text.trim() !== '') {
+                                setCurConfirmPassword(text);
+                              }
+                            }}
                             autoCapitalize="none"
                           />
                       </View>
@@ -223,7 +305,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         style={[
                         styles.input,
                         { alignItems: 'flex-start' },
-                        selectedPreferences.length > 0 && styles.selectedPreferencesContainer,
+                        selectedPreferences?.length > 0 && styles.selectedPreferencesContainer,
                       ]}
                       onPress={() => setModalVisible(true)}>
                       <Text
@@ -231,17 +313,17 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                           styles.selectedPreferencesText,
                           {
                             color:
-                              selectedPreferences.length > 0
+                              selectedPreferences?.length > 0
                                 ? styles.selectedPreferencesText.color
                                 : 'rgba(0, 0, 0, 0.48)',
                             fontStyle:
-                              selectedPreferences.length > 0
+                              selectedPreferences?.length > 0
                                 ? styles.selectedPreferencesText.fontStyle
                                 : 'italic',
                             marginTop: 7,
                           },
                         ]}>
-                        {selectedPreferences.length > 0
+                        {selectedPreferences?.length > 0
                           ? selectedPreferences.join(', ')
                           : 'Select Preferences'}
                       </Text>
@@ -251,7 +333,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('poetry') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('poetry') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('poetry')}>
                           <Text style={styles.preferenceButtonText}>poetry</Text>
@@ -259,7 +341,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('photography') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('photography') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('photography')}>
                           <Text style={styles.preferenceButtonText}>photography</Text>
@@ -267,7 +349,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('paintings') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('paintings') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('paintings')}>
                           <Text style={styles.preferenceButtonText}>paintings</Text>
@@ -275,7 +357,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('water color') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('water color') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('water color')}>
                           <Text style={styles.preferenceButtonText}>water color</Text>
@@ -283,7 +365,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('drawings') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('drawings') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('drawings')}>
                           <Text style={styles.preferenceButtonText}>drawings</Text>
@@ -291,7 +373,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('pencil art') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('pencil art') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('pencil art')}>
                           <Text style={styles.preferenceButtonText}>pencil art</Text>
@@ -299,7 +381,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('writing') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('writing') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('writing')}>
                           <Text style={styles.preferenceButtonText}>writing</Text>
@@ -307,7 +389,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <TouchableOpacity
                           style={[
                             styles.preferenceButton,
-                            selectedPreferences.includes('music') && styles.selectedPreferenceButton,
+                            selectedPreferences?.includes('music') && styles.selectedPreferenceButton,
                           ]}
                           onPress={() => handlePreferenceSelect('design')}>
                           <Text style={styles.preferenceButtonText}>design</Text>
@@ -339,7 +421,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                       </View>
                   </View>
               </Modal>
-              <View style={styles.buttoms}>
+              <View>
                 <TouchableOpacity 
                   style={styles.saveContainer} 
                   activeOpacity={0.7}
@@ -359,10 +441,22 @@ const UserSettings: React.FC<UserSettingProps> = () => {
 };
 
 const styles = StyleSheet.create({
+  buttons: {
+    flexDirection: 'row',
+  },
   container: {
     flexDirection: 'column',
     justifyContent: 'flex-start', 
     alignItems: 'flex-start'
+  },
+  passwordErrorText: {
+    position: 'absolute',
+    color: 'red',
+    zIndex: 1,
+    fontSize: 15,
+    width: 600,
+    left: -2,
+    top: 205,
   },
   imageContainer: {
     alignSelf: 'center',
@@ -372,8 +466,8 @@ const styles = StyleSheet.create({
   },
   containerScrollView: {
     width: 430,
+    flex: 1,
     flexDirection: 'column',
-    flexWrap: 'wrap',
     // alignItems: 'center',
     // justifyContent: 'center',
   },
@@ -528,13 +622,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#5364B7',
     alignSelf: 'center',
-    width: '100%',
+    width: '40%',
     height: 40,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: -10,
+    bottom: 30,
+    left: 35,
     zIndex: 1
   },
   preferenceButton: {
@@ -548,7 +643,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     // backgroundColor: 'white',
     alignSelf: 'center',
-    width: '100%',
+    width: '40%',
     height: 40,
     borderRadius: 10,
     borderWidth: 3,
@@ -556,7 +651,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: -60,
+    bottom: 30,
+    left: 230,
   },
   popUpBox: {
     width: 230,

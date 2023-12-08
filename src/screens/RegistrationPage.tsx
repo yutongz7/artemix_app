@@ -58,7 +58,7 @@ const RegistrationPage = () => {
       setPhoneError(false);
       setPasswordError(false);
       setEmailError(false);
-      const userPhone = parseInt(phone.replace(/-/g, ''))
+      const userPhone = phone.replace(/\D/g, '')
       const userPreferenceTagsList = tags.split(", ").map(tag => tag.toLowerCase());
       const imgAddress = 'default-profile-photo.png';
       try {

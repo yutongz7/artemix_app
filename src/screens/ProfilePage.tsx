@@ -224,8 +224,16 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSettingsPress = () => {
-    navigation.navigate('UserSettings');
-    // console.log('Image pressed:');
+    navigation.navigate('UserSettings', {
+      data: {
+        userName: curUserName,
+        userPreferenceTags: curUserPreferenceTags,
+        userEmail: curUserEmail,
+        userTags: curUserArtInterestTags,
+        userProfileImgAddress: curUserProfileImgAddress,
+        userPhone: curUserPhone,
+      }
+    });
   };
 
   const handleChat = (item:ArtistData) => {
