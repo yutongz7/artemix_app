@@ -6,8 +6,6 @@ import DetailPage from './src/screens/DetailPage';
 import RecPage from './src/screens/RecPage';
 import LoginPage from './src/screens/LoginPage';
 import RegistrationPage from './src/screens/RegistrationPage';
-import OnboardingPage1 from './src/screens/OnboardingPage1';
-import OnboardingPage2 from './src/screens/OnboardingPage2';
 import ChatPage from './src/screens/ChatPage';
 import ArtistProfilePage from './src/screens/ArtistProfilePage';
 import ProfilePage from './src/screens/ProfilePage';
@@ -30,8 +28,6 @@ const App = () => {
         <Stack.Screen name="RecPage" component={RecPage} />
         <Stack.Screen name="LoginPage" component={LoginPage} />
         <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
-        <Stack.Screen name="OnboardingPage1" component={OnboardingPage1} />
-        <Stack.Screen name="OnboardingPage2" component={OnboardingPage2} />
         <Stack.Screen name="ArtistProfilePage" component={ArtistProfilePage} />
         <Stack.Screen name="ChatPage" component={ChatPage} />
         <Stack.Screen name="ProfilePage" component={ProfilePage} />
