@@ -1,4 +1,17 @@
 {
   "name": "artemix_app",
-  "displayName": "artemix_app"
+  "displayName": "artemix_app",
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "ec593ddc-1ce2-4052-a9c0-66d214633674"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/ec593ddc-1ce2-4052-a9c0-66d214633674"
+    },
+    "android": {},
+    "ios": {}
+  }
 }

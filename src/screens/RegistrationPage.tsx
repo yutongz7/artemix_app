@@ -108,7 +108,8 @@ const RegistrationPage = () => {
           body: JSON.stringify(recommendArtistsObject),
         });
 
-        if (response_like.status === 201 && response_user.status === 201 && response_recommendArtists.status === 201) {
+        if ((response_like.status === 201 && response_user.status === 201 && response_recommendArtists.status === 201)
+        || (response_like.status === 200 && response_user.status === 200 && response_recommendArtists.status === 200)) {
           navigation.navigate('OnboardingNavBar');
         } else {
           if (response_like.status !== 201){
