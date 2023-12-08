@@ -11,6 +11,8 @@ import ArtistProfilePage from './src/screens/ArtistProfilePage';
 import ProfilePage from './src/screens/ProfilePage';
 import UserSettings from './src/screens/UserSettings';
 import PostPage from './src/screens/PostPage';
+import OnboardingPage1 from './src/screens/OnboardingPage1';
+import OnboardingPage2 from './src/screens/OnboardingPage2';
 import { RootStackParamList } from './src/navigation/NavigationTypes';
 import { GlobalProvider } from './GlobalContext';
 import { LogBox } from "react-native"
@@ -38,6 +40,8 @@ const App = () => {
           <Stack.Screen name="ProfilePage" component={ProfilePage} />
           <Stack.Screen name="UserSettings" component={UserSettings} />
           <Stack.Screen name="PostPage" component={PostPage} />
+          <Stack.Screen name="OnboardingPage2" component={OnboardingPage2} />
+          <Stack.Screen name="OnboardingPage1" component={OnboardingPage1} />
         </Stack.Navigator>
       </NavigationContainer>
     </GlobalProvider>

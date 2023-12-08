@@ -61,6 +61,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
 
   const fetchLikesData = async () => {
     try {
+      console.log("curUserId: ", curUserId)
       const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${curUserId}"}`);
       const data: likesData = await response.json();
       return data;
@@ -223,8 +224,8 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
       try {
         const newLikesData = {
           likeFromUserId: curUserId,
-          artistIdToLikeCount: Object.fromEntries(artistIdToLikedArts),
           likedArtIds: likedArtIdsArr,
+          artistIdToLikedArts: Object.fromEntries(artistIdToLikedArts),
         };
 
         const response = await fetch('http://localhost:4000/likes', {
@@ -245,10 +246,10 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
             recommendThisArtist = true;
           }
         } else {
-          console.error('Error creating like:', result.message);
+          console.error('Error creating like 1:', result.message);
         }
       } catch (error) {
-        console.error('Error creating like:', error);
+        console.error('Error creating like 2:', error);
       }
 
       const artistProfileImgAddress = artistInfo[0]?.userProfileImgAddress;
@@ -268,7 +269,6 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
               artistUsername: pressedArtData.userName,
               artistProfileImgAddress: artistProfileImgAddress,
               artistPreferenceTags: artistPreferenceTags,
-              artistTags: artistTags,
               userId: curUserId,
               artId: pressedArtData.artId,
               artisName: pressedArtData.userName,

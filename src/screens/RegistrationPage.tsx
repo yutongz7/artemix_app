@@ -54,6 +54,9 @@ const RegistrationPage = () => {
         setPhoneError(false);
       }
     } else {
+      setPhoneError(false);
+      setPasswordError(false);
+      setEmailError(false);
       const userPhone = parseInt(phone.replace(/-/g, ''))
       const userPreferenceTagsList = tags.split(", ");
       try {
@@ -68,7 +71,18 @@ const RegistrationPage = () => {
           tags: selectedPreferences,
         };
 
-        const response = await fetch('http://localhost:4000/users', {
+        const likeObject = {
+          likeFromUserId: userId,
+          likedArtIds: [],
+          artistIdToLikedArts: new Map()
+        };
+
+        const recommendArtistsObject = {
+          userId: userId,
+          recommendArtistIds: new Map()
+        };
+
+        const response_user = await fetch('http://localhost:4000/users', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -76,13 +90,42 @@ const RegistrationPage = () => {
           body: JSON.stringify(userObject),
         });
 
-        if (response.status === 201) {
-          navigation.navigate('OnboardingPage1');
+        const response_like = await fetch('http://localhost:4000/likes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(likeObject),
+        });
+
+        const response_recommendArtists = await fetch('http://localhost:4000/recommendArtists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(recommendArtistsObject),
+        });
+
+        if (response_like.status === 201 && response_user.status === 201 && response_recommendArtists.status === 201) {
+          navigation.navigate('Home', {
+            showOnboarding: true
+          });
         } else {
-          const responseBody = await response.json();
-          console.error('Registration failed:', responseBody.message);
+          if (response_like.status !== 201){
+            const responseBody = await response_like.json();
+            console.error('Register like failed:', responseBody.message);
+          }
+          if (response_user.status !== 201){
+            const responseBody = await response_user.json();
+            console.error('Register user failed:', responseBody.message);
+          }
+          if (response_recommendArtists.status !== 201){
+            const responseBody = await response_recommendArtists.json();
+            console.error('Register recommendArtists failed:', responseBody.message);
+          }
         }
         setCurUserId(userId);
+
       } catch (error) {
         console.error('Error during registration:', error);
       }

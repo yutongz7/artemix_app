@@ -281,7 +281,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       <View>
          <View style={styles.container_combineTopic}>
           <View style={styles.container_textSubtitle}>
-            <Text style={styles.textSubtitle}>Combined interests of you and the artist:</Text>
+            <Text style={styles.textSubtitle}>Topics she/he and you might be interested:</Text>
             <View style={styles.divider} />
           </View>
           <View style={styles.topicContainer}>
