@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'rea
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useGlobalContext } from '../../GlobalContext';
 
 interface Art {
   _id: string;
@@ -14,7 +15,7 @@ interface Art {
   artTags: {type: [string], default: []};
   width: number;
   height: number;
-}
+};
 
 interface likesData {
   message: string;
@@ -42,7 +43,6 @@ interface ArtistData {
 type ProfilePageNavigationProp = NavigationProp<RootStackParamList, 'ProfilePage'>;
 
 const ProfilePage: React.FC = () => {
-  const userName = 'nathan_j';
   const [showUserArt, setShowUserArt]= useState(true);
   const [arts, setArts] = useState<Art[]>([]); // for all art
   const [userArt, setUserArt] = useState<Art []>([]);
@@ -57,6 +57,7 @@ const ProfilePage: React.FC = () => {
   const [curUserArtInterestTags, setCurUserArtInterestTags] = useState<string[]>([]);
   const [curUserPreferenceTags, setCurUserPreferenceTags] = useState<string[]>([]);
   const [curTag, setCurTag]= useState<string>("YourArts"); // YourArts / LikedArts / Artists
+  const { curUserId } = useGlobalContext();
 
   const toggleView = () => {
     setShowUserArt(!showUserArt);
@@ -116,13 +117,13 @@ const ProfilePage: React.FC = () => {
 
   // get all arts filtered by the current user
   useEffect(() => {
-    const filtered = arts.filter(art => art.userId === userName);
+    const filtered = arts.filter(art => art.userId === curUserId);
     setUserArt(filtered);
-  }, [arts, userName]);
+  }, [arts, curUserId]);
 
   const fetchLikesData = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
+      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${curUserId}"}`);
       const data: likesData = await response.json();
       return data.data;
     } catch(error) {
@@ -141,7 +142,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const getCurUserData =async () => {
-    const data = await fetchArtistData(userName)
+    const data = await fetchArtistData(curUserId)
     setCurUserName(data.data[0].userName);
     setCurUserEmail(data.data[0].userEmail);
     setCurUserArtInterestTags(data.data[0].tags);
@@ -153,7 +154,7 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     getCurUserData();
-  }, [userName]);
+  }, [curUserId]);
 
   const getLikedlData = async() => {
     let filteredArts: Art[] = [];
@@ -341,7 +342,7 @@ const ProfilePage: React.FC = () => {
     <View>
       <View style={styles.bioInfo}>
         <Image
-                source={{uri: `http://localhost:4000/images/${userName}.png`}}
+                source={{uri: `http://localhost:4000/images/${curUserId}.png`}}
                 style={styles.imageStyle}
         />
         <Text style={{fontSize: 30, marginTop: 10}}>{curUserName}</Text>

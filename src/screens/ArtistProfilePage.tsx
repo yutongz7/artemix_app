@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import Calendar from "../component/Calendar";
 import TimePicker from "../component/TimePicker";
+import { useGlobalContext } from '../../GlobalContext';
 
 type ArtistProfilePageRouteProp = RouteProp<RootStackParamList, 'ArtistProfilePage'>;
 type ArtistProfilePageNavigationProp = NavigationProp<RootStackParamList, 'ArtistProfilePage'>;
@@ -32,8 +33,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
   const [curUserTags, setCurUserTags] = useState<String[]>([]);
   const [combineInterestList, setCombineInterestList] = useState<String[]>([]);
   const [requestSent, setRequestSent] = useState(false);
-  
-  const userName = "nathan_j";
+  const { curUserId } = useGlobalContext();
 
   interface Art {
     _id: string;
@@ -125,7 +125,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
 
   const fetchLikesData = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
+      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${curUserId}"}`);
       const data: likesData = await response.json();
       return data.data;
     } catch(error) {
@@ -135,7 +135,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
 
   const fetchCurUserData = async() => {
     try {
-      const response = await fetch(`http://localhost:4000/users?where={"userId":"${userName}"}`);
+      const response = await fetch(`http://localhost:4000/users?where={"userId":"${curUserId}"}`);
       const data: userData = await response.json();
       return data.data;
     } catch(error) {
@@ -267,7 +267,7 @@ const ArtistProfilePage: React.FC<ArtistProfilePageProps> = ({route}) => {
       }
     };
     getInterestList();
-  }, [userName])
+  }, [curUserId])
 
   useEffect(() => {
     fetchLikesData();

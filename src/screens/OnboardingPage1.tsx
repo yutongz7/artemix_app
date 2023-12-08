@@ -7,15 +7,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 type OnboardingPage1RouteProp = RouteProp<RootStackParamList, 'OnboardingPage1'>;
 type OnboardingPage1NavigationProp = NavigationProp<RootStackParamList, 'OnboardingPage1'>;
 
-const OnboardingPage1 = () => {
-    const navigation = useNavigation<OnboardingPage1NavigationProp>();
-    const handleNextPress = () => {
-        navigation.navigate('OnboardingPage2');
-    };
+interface OnboardingPage1PageProps {
+  route: OnboardingPage1RouteProp;
+}
 
-    const goBack = () => {
-        navigation.goBack();
-      };
+const OnboardingPage1: React.FC<OnboardingPage1PageProps> = ({ route }) => {
+  const navigation = useNavigation<OnboardingPage1NavigationProp>();
+  const handleNextPress = () => {
+      navigation.navigate('OnboardingPage2');
+  };
+
+  const goBack = () => {
+      navigation.goBack();
+  };
 
   return (
     <View style={styles.container}>

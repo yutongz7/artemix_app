@@ -1,6 +1,6 @@
 import React, { useState, useEffect, } from 'react';
 import { View, Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import BottomTabNavigator from '../navigation/BottomTabNavigator';
 
@@ -16,9 +16,14 @@ interface Art {
   height: number;
 }
 type HomeScreenNavigationProp = NavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenRouteProp = RouteProp<RootStackParamList, 'OnboardingPage2'>;
+
+interface HomePageProps {
+  route: HomeScreenRouteProp;
+}
+
 const HomePage: React.FC = () => {
   const [arts, setArts] = useState<Art[]>([]);
-
 
   useEffect(() => {
     fetch('http://localhost:4000/arts')
@@ -50,7 +55,7 @@ const HomePage: React.FC = () => {
         artAddress: art.artAddress,
         artTags: art.artTags,
         width: art.width,
-        height: art.height
+        height: art.height,
       }
     })
     console.log('Image pressed:', art);

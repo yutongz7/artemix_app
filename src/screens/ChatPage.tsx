@@ -3,6 +3,7 @@ import { Image, View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { RouteProp, useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
+import { useGlobalContext } from '../../GlobalContext';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ChatPageRouteProp = RouteProp<RootStackParamList, 'ChatPage'>;
@@ -20,6 +21,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
   const artistProfileImgAddress = route.params.data.userProfileImgAddress;
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState('');
+  const { curUserId } = useGlobalContext();
 
   interface Message {
     content: string;
@@ -85,7 +87,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
           },
           body: JSON.stringify({
             ChatId: artistId,
-            CurrUserId: 'nathan_j',
+            CurrUserId: curUserId,
             ArtistIdToChats: { [artistId]: [...chatMessages, newMessage] },
           }),
         });
@@ -98,10 +100,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
   };
 
   const updateRecData = async () => {
-    const currUser = "nathan_j";
 
     try {
-      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${currUser}"}`);
+      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${curUserId}"}`);
       const data: { message: string; data: { _id: string; userId: String; recommendArtistIds: Map<string, string> }[] } = await response.json();
 
       if (data.data.length > 0) {
@@ -109,7 +110,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ route }) => {
         currentRecommendations.set(artistId, 'chat');
 
         const newRecData = {
-          userId: currUser,
+          userId: curUserId,
           recommendArtistIds: Object.fromEntries(currentRecommendations),
         };
 

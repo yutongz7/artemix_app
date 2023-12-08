@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import Comments from './Comments';
 import ReturnTabs from "../component/ReturnTabs";
+import { useGlobalContext } from '../../GlobalContext';
 
 type DetailPageRouteProp = RouteProp<RootStackParamList, 'DetailPage'>;
 type DetailPageNavigationProp = NavigationProp<RootStackParamList, 'DetailPage'>;
@@ -39,14 +40,13 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
   const [artistProfileImgAddress, setArtistProfileImgAddress] = useState("");
   const [artistPreferenceTags, setArtistPreferenceTags] = useState([]);
   const [isNewRecommendArtist, setIsNewRecommendArtist] = useState(true);
+  const { curUserId } = useGlobalContext();
 
   const tags: string[] = (pressedArtData.artTags as unknown) as string[];
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-
-  const userName = "nathan_j";
 
   interface likesData {
     message: string;
@@ -61,7 +61,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
 
   const fetchLikesData = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${userName}"}`);
+      const response = await fetch(`http://localhost:4000/likes?where={"likeFromUserId":"${curUserId}"}`);
       const data: likesData = await response.json();
       return data;
     } catch (error) {
@@ -124,7 +124,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
   const fetchRecommendArtist = async () => {
     console.log("fetchRecommendArtist");
     try {
-      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${userName}"}`);
+      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${curUserId}"}`);
       const data: recommendArtistData = await response.json();
       return data;
     } catch (error) {
@@ -158,7 +158,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
             [keyId]: "notChat"
           };
           const newRecommendArtist = {
-            userId: userName,
+            userId: curUserId,
             recommendArtistIds: newRecommendArtistIds,
           };
           console.log("newRecommendArtist: ", newRecommendArtist)
@@ -222,7 +222,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
       // console.log("AFTER " + likedArtIdsArr);
       try {
         const newLikesData = {
-          likeFromUserId: userName,
+          likeFromUserId: curUserId,
           artistIdToLikeCount: Object.fromEntries(artistIdToLikedArts),
           likedArtIds: likedArtIdsArr,
         };
@@ -269,7 +269,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
               artistProfileImgAddress: artistProfileImgAddress,
               artistPreferenceTags: artistPreferenceTags,
               artistTags: artistTags,
-              userId: userName,
+              userId: curUserId,
               artId: pressedArtData.artId,
               artisName: pressedArtData.userName,
               artTitle: pressedArtData.artTitle,
@@ -361,7 +361,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ route }) => {
               <Ionicons name='close-circle' size={30} />
             </TouchableOpacity>
             <Text style={{ fontSize: 25 }}>Comments</Text>
-            <Comments artId={pressedArtData.artId} username={userName} />
+            <Comments artId={pressedArtData.artId} username={curUserId} />
           </ScrollView>
         </View>
       </Modal>

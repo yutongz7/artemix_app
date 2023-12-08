@@ -3,9 +3,9 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'rea
 import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import { useFocusEffect } from '@react-navigation/native';
+import { useGlobalContext } from '../../GlobalContext';
 
 const InboxPage: React.FC = () => {
-  const userName = "nathan_j"; // use for now before login implemented
 
   const [artists, setArtists] = useState<ArtistData[]>([]);
   const [artistsMap, setArtistsMap] = useState<Map<string, string>>(new Map());
@@ -13,6 +13,7 @@ const InboxPage: React.FC = () => {
   const [inboxArtists, setInboxArtists] = useState<ArtistData[]>([]);
   const [pendingArtists, setPendingArtists] = useState<ArtistData[]>([]);
   const [checkFetchRecommendArtist, setCheckFetchRecommendArtist] = useState(false);
+  const { curUserId } = useGlobalContext();
   
   type InboxPageNavigationProp = NavigationProp<RootStackParamList, 'InboxPage'>;
   const navigation = useNavigation<InboxPageNavigationProp>();
@@ -85,7 +86,7 @@ const InboxPage: React.FC = () => {
   const fetchRecommendArtist = async () => {
     // console.log("fetchRecommendArtist");
     try {
-      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${userName}"}`);
+      const response = await fetch(`http://localhost:4000/recommendArtists?where={"userId":"${curUserId}"}`);
       const data: recommendArtistData = await response.json();
       const value = data.data[0].recommendArtistIds;
       const newEntries = Object.entries(value) as [string, string][];
@@ -140,7 +141,7 @@ const InboxPage: React.FC = () => {
   const fetchLastMessages = async () => {
     const promises = inboxArtists.map(async (artist) => {
       try {
-        const response = await fetch(`http://localhost:4000/chats?where={"CurrUserId":"${userName}","ArtistIdToChats.${artist.userId}": { "$exists": true }}`);
+        const response = await fetch(`http://localhost:4000/chats?where={"CurrUserId":"${curUserId}","ArtistIdToChats.${artist.userId}": { "$exists": true }}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }

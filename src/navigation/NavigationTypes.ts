@@ -33,23 +33,21 @@ export type RootStackParamList = {
         userProfileImgAddress: string;
         userPreferenceTags: string[];
         userTags: string[];
-        screen: string,
-    }},
+    }};
     LoginPage: undefined,
     InboxPage: undefined,
     ChatPage: {
         data: {
             userId: string;
             userName: string;
-            userPhone: number;
             userProfileImgAddress: string;
             userPreferenceTags: string[];
             tags: string[];
         }
-    },
-    RegistrationPage: undefined,
-    ProfilePage: undefined,
-    UserSettings: undefined,
-    OnboardingPage1: undefined,
-    OnboardingPage2: undefined,
+    };
+    OnboardingPage1: undefined;
+    OnboardingPage2: undefined;
+    RegistrationPage: undefined;
+    ProfilePage: undefined;
+    UserSettings: undefined;
   };

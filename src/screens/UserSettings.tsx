@@ -4,6 +4,7 @@ import { RouteProp, useNavigation, NavigationProp } from '@react-navigation/nati
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal'
+import { useGlobalContext } from '../../GlobalContext';
 
 type UserSettingsNavigationProp = NavigationProp<RootStackParamList, 'UserSettings'>;
 type UserSettingsRouteProp = RouteProp<RootStackParamList, 'UserSettings'>;
@@ -25,13 +26,13 @@ interface UserData {
 
 const UserSettings: React.FC<UserSettingProps> = () => {
     const navigation = useNavigation<UserSettingsNavigationProp>();
-    const userName = 'nathan_j';
     const startingTags: string[] = ['Poetry', 'Photography', 'Paintings', 'Water Color', 'Drawings', 'Pencil Art'];
     const [changeMade, setChangeMade] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [tagsList, setTagsList] = useState<string []>(startingTags);
     const [userData, setUserData] = useState<UserData []>([]);
     const [searchData, setSearchData] = useState('');
+    const { curUserId } = useGlobalContext();
     
     // fetch user data
     /*
@@ -75,6 +76,10 @@ const UserSettings: React.FC<UserSettingProps> = () => {
         setTagsList(updatedTags);
         setChangeMade(true);
         setSearchData('');
+    };
+
+    const handleLogout = () => {
+      navigation.navigate('LoginPage');
     }
 
     return (
@@ -88,7 +93,7 @@ const UserSettings: React.FC<UserSettingProps> = () => {
             </View>
             <View style={styles.imageContainer}>
                 <Image
-                        source={{uri: `http://localhost:4000/images/${userName}.png`}}
+                        source={{uri: `http://localhost:4000/images/${curUserId}.png`}}
                         style={styles.imageStyle}
                 />
                 <Text style={{marginTop: 5, fontSize: 12}}>Edit Profile Photo</Text>
@@ -176,6 +181,12 @@ const UserSettings: React.FC<UserSettingProps> = () => {
                         <Text style={{color: '#D4D4D4', fontSize: 18, fontWeight: 'bold'}}>Save</Text>
                     </View>
                 )}
+
+                <TouchableOpacity onPress={handleLogout}>
+                  <View style={styles.logOutContainer}>
+                      <Text style={{color: '#5364B7', fontSize: 18, fontWeight: 'bold'}}>Log out</Text>
+                  </View>
+                </TouchableOpacity>
             </View>
 
             <Modal 
@@ -291,13 +302,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#5364B7',
     alignSelf: 'center',
-	width: '100%',
-	height: 40,
+    width: '100%',
+    height: 40,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    bottom: -70
+    bottom: -10,
+    zIndex: 1
+  },
+  logOutContainer: {
+    flexDirection: 'row',
+    // backgroundColor: 'white',
+    alignSelf: 'center',
+    width: '100%',
+    height: 40,
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: '#5364B7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: -60,
   },
   popUpBox: {
     width: 230,

@@ -6,11 +6,15 @@ import { RootStackParamList } from '../navigation/NavigationTypes';
 type OnboardingPage2RouteProp = RouteProp<RootStackParamList, 'OnboardingPage2'>;
 type OnboardingPage2NavigationProp = NavigationProp<RootStackParamList, 'OnboardingPage2'>;
 
-const OnboardingPage1 = () => {
-    const navigation = useNavigation<OnboardingPage2NavigationProp>();
-    const handleNextPress = () => {
-        navigation.navigate('Home')
-    };    
+interface OnboardingPage2PageProps {
+  route: OnboardingPage2RouteProp;
+}
+
+const OnboardingPage2: React.FC<OnboardingPage2PageProps> = ({ route }) => {
+  const navigation = useNavigation<OnboardingPage2NavigationProp>();
+  const handleNextPress = () => {
+      navigation.navigate('Home');
+  };    
 
   return (
     <View style={styles.container}>
@@ -56,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OnboardingPage1;
+export default OnboardingPage2;

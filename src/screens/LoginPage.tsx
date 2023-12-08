@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Image, View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
+import { useGlobalContext } from '../../GlobalContext';
 
 type LoginPageNavigationProp = NavigationProp<RootStackParamList, 'LoginPage'>;
 
@@ -13,6 +14,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ navigation }) => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { setCurUserId } = useGlobalContext();
 
   interface User {
     userId: string,
@@ -34,12 +36,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ navigation }) => {
         setError('');
         navigation.navigate('Home');
     } else {
-        setError('Invalid email or password')
+        setError('Invalid user ID or password')
     }
     } catch (error) {
       console.error('Error during login:', error);
       setError('An error occurred during login');
     }
+    setCurUserId(userId);
   };
 
   return (
@@ -48,6 +51,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="User ID"
+        placeholderTextColor="rgba(0, 0, 0, 0.48)"
         value={userId}
         onChangeText={(text) => setUserId(text)}
         autoCapitalize="none"
@@ -55,6 +59,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Password"
+        placeholderTextColor="rgba(0, 0, 0, 0.48)"
         secureTextEntry
         value={password}
         onChangeText={(text) => setPassword(text)}
@@ -122,24 +127,27 @@ const styles = StyleSheet.create({
   noAccText: {
     color: 'black',
     fontWeight: 'bold',
-    fontSize: 10,
+    fontSize: 15,
     fontStyle: 'italic',
     marginBottom: 3,
     fontFamily: 'QuattrocentoSans-Regular',
   },
   accButton: {
     borderRadius: 10,
-    width: '17%',
-    height: '3%',
-    backgroundColor: 'rgba(83, 100, 183, 0.8)',
+    width: '25%',
+    height: '4%',
+    borderWidth: 3,
+    borderColor: '#5364B7',
+    // backgroundColor: 'rgba(83, 100, 183, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
   accText: {
-    color: 'white',
-    fontSize: 10,
+    color: '#5364B7',
+    fontSize: 15,
     fontFamily: 'QuattrocentoSans-Regular',
+    fontWeight: 'bold'
   },
 });
 

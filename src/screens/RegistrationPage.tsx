@@ -3,6 +3,7 @@ import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable, 
 import { RouteProp, useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/NavigationTypes';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useGlobalContext } from '../../GlobalContext';
 
 type RegistrationPageRouteProp = RouteProp<RootStackParamList, 'RegistrationPage'>;
 type RegistrationPageNavigationProp = NavigationProp<RootStackParamList, 'RegistrationPage'>;
@@ -19,41 +20,72 @@ const RegistrationPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
   const [tags, setTags] =  useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
+  const { setCurUserId } = useGlobalContext();
 
   const goBack = () => {
-    navigation.goBack();
+    navigation.navigate('LoginPage');
+    console.log('go back')
   };
 
   const handleNextPress = async () => {
-    const userPhone = parseInt(phone.replace(/-/g, ''))
-    try {
-      const userObject = {
-        userId: userId,
-        userName: `${firstName} ${lastName}`,
-        userPassword: password,
-        userEmail: email,
-        userPhone: userPhone,
-        userProfileImgAddress: '',
-        userPreferenceTags: tags,
-        tags: selectedPreferences,
-      };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const checkEmail = emailRegex.test(email);
+    const checkPassword = (password === confirmPassword);
+    const phoneRegex = /^\(\+\d-\)\d{3}-\d{3}-\d{4}$/;
+    const checkPhone = phoneRegex.test(phone);
 
-      const response = await fetch('http://localhost:4000/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userObject),
-      });
-
-      if (response.status === 201) {
-        navigation.navigate('OnboardingPage1');
+    if (!checkEmail || !checkPassword || !checkPhone) {
+      if (!checkEmail) {
+        setEmailError(true);
       } else {
-        const responseBody = await response.json();
-        console.error('Registration failed:', responseBody.message);
+        setEmailError(false);
       }
-    } catch (error) {
-      console.error('Error during registration:', error);
+      if (!checkPassword) {
+        setPasswordError(true);
+      } else {
+        setPasswordError(false);
+      }
+      if (!checkPhone) {
+        setPhoneError(true);
+      } else {
+        setPhoneError(false);
+      }
+    } else {
+      const userPhone = parseInt(phone.replace(/-/g, ''))
+      const userPreferenceTagsList = tags.split(", ");
+      try {
+        const userObject = {
+          userId: userId,
+          userName: `${firstName} ${lastName}`,
+          userPassword: password,
+          userEmail: email,
+          userPhone: userPhone,
+          userProfileImgAddress: '',
+          userPreferenceTags: userPreferenceTagsList,
+          tags: selectedPreferences,
+        };
+
+        const response = await fetch('http://localhost:4000/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userObject),
+        });
+
+        if (response.status === 201) {
+          navigation.navigate('OnboardingPage1');
+        } else {
+          const responseBody = await response.json();
+          console.error('Registration failed:', responseBody.message);
+        }
+        setCurUserId(userId);
+      } catch (error) {
+        console.error('Error during registration:', error);
+      }
     }
   };
 
@@ -79,12 +111,17 @@ const RegistrationPage = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="Email: example@email.com"
         placeholderTextColor="rgba(0, 0, 0, 0.48)"
         value={email}
         onChangeText={(text) => setEmail(text)}
         autoCapitalize="none"
       />
+      {emailError && (
+        <Text style={styles.emailErrorText}>
+          ↑ Enter a valid email address, like example@email.com.
+        </Text>
+      )}
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -103,6 +140,11 @@ const RegistrationPage = () => {
         onChangeText={(text) => setConfirmPassword(text)}
         autoCapitalize="none"
       />
+      {passwordError && (
+        <Text style={styles.passwordErrorText}>
+          ↑ Passwords do not match. Please re-enter to confirm.
+        </Text>
+      )}
       <TextInput
         style={styles.input}
         placeholder="First Name"
@@ -132,13 +174,19 @@ const RegistrationPage = () => {
         value={phone}
         onChangeText={(text) => setPhone(text)}
       />
+      {phoneError && (
+        <Text style={styles.phoneErrorText}>
+          ↑ Enter phone number as (+X-)XXX-XXX-XXXX.
+        </Text>
+      )}
       <TextInput
-        style={styles.input}
-        placeholder="What kind of artist are you?"
+        style={styles.artistInput}
+        placeholder="Type of artist? For multiple, separate with ',' (e.g., photographer, writer)."
         placeholderTextColor="rgba(0, 0, 0, 0.48)"
         value={tags}
         onChangeText={(text) => setTags(text)}
         autoCapitalize="none"
+        multiline={true}
       />
 
       <Text style={styles.preferencesTitle}>Preferences</Text>
@@ -236,8 +284,8 @@ const RegistrationPage = () => {
                 styles.preferenceButton,
                 selectedPreferences.includes('music') && styles.selectedPreferenceButton,
               ]}
-              onPress={() => handlePreferenceSelect('music')}>
-              <Text style={styles.preferenceButtonText}>music</Text>
+              onPress={() => handlePreferenceSelect('design')}>
+              <Text style={styles.preferenceButtonText}>design</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -257,9 +305,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
   },
+  emailErrorText: {
+    position: 'absolute',
+    color: 'red',
+    zIndex: 1,
+    fontSize: 15,
+    left: 24,
+    top: 290,
+  },
+  passwordErrorText: {
+    position: 'absolute',
+    color: 'red',
+    zIndex: 1,
+    fontSize: 15,
+    left: 20,
+    top: 391,
+  },
+  phoneErrorText: {
+    position: 'absolute',
+    color: 'red',
+    zIndex: 1,
+    fontSize: 15,
+    left: 20,
+    top: 590,
+  },
   profilePictureContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   uploadPhotoText: {
     color: '#5364B7',
@@ -274,19 +346,31 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontStyle: 'italic',
     paddingLeft: 10,
-    marginBottom: 15,
+    marginBottom: 17,
+    backgroundColor: 'rgba(234, 233, 233, 0.38)'
+  },
+  artistInput: {
+    borderWidth: 1,
+    borderColor: '#5364B7',
+    borderRadius: 10,
+    height: 55,
+    fontSize: 15,
+    fontStyle: 'italic',
+    paddingLeft: 10,
+    marginBottom: 17,
     backgroundColor: 'rgba(234, 233, 233, 0.38)'
   },
   preferencesTitle: {
     alignSelf:'center',
     fontSize: 20,
     color: '#000000',
-    marginBottom: 10,
+    marginBottom: 5,
+    marginTop: -10,
   },
   preferencesSubtitle: {
-    fontSize: 11,
+    fontSize: 15,
     color: '#A0A0A0',
-    marginBottom: 15,
+    marginBottom: 5,
   },
   nextButton: {
     backgroundColor: '#5364B7',
@@ -296,6 +380,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
+    marginBottom: 8,
   },
   nextButtonText: {
     color: 'white',
@@ -331,7 +416,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-    marginTop: 5,
+    marginTop: -10,
   },
   preferenceButton: {
     backgroundColor: '#999898',
@@ -349,6 +434,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     left: 0,
     marginTop: 10,
+    zIndex: 1,
   },
   defaultPreferencesText: {
     color: 'rgba(0, 0, 0, 0.48)',
