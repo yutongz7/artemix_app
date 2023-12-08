@@ -14,6 +14,8 @@ import PostPage from './src/screens/PostPage';
 import { RootStackParamList } from './src/navigation/NavigationTypes';
 import { GlobalProvider } from './GlobalContext';
 import { LogBox } from "react-native"
+import OnboardingHomePage from './src/screens/OnboardingHomePage';
+import OnboardingNavBar from './src/screens/OnboardingNavBar';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 LogBox.ignoreAllLogs(true);
@@ -38,6 +40,8 @@ const App = () => {
           <Stack.Screen name="ProfilePage" component={ProfilePage} />
           <Stack.Screen name="UserSettings" component={UserSettings} />
           <Stack.Screen name="PostPage" component={PostPage} />
+          <Stack.Screen name="OnboardingHomePage" component={OnboardingHomePage}/>
+          <Stack.Screen name="OnboardingNavBar" component={OnboardingNavBar}/>
         </Stack.Navigator>
       </NavigationContainer>
     </GlobalProvider>

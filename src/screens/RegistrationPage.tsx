@@ -79,7 +79,7 @@ const RegistrationPage = () => {
         });
 
         if (response.status === 201 || 200) {
-          navigation.navigate('Home', {showOnboarding: true});
+          navigation.navigate('OnboardingNavBar');
         } else {
           const responseBody = await response.json();
           console.error('Registration failed:', responseBody.message);

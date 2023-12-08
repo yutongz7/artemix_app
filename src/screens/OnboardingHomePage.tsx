@@ -15,18 +15,16 @@ interface Art {
   height: number;
 }
 
-interface HomePageProps {
-  showOnboarding: boolean;
-}
-
 type HomeScreenNavigationProp = NavigationProp<RootStackParamList, 'Home'>;
-type HomeScreenRouteProp = RouteProp<RootStackParamList, 'OnboardingPage2'>;
+type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
 
 interface HomePageProps {
   route: HomeScreenRouteProp;
+  showOnboarding: boolean;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ showOnboarding }) => {
+const OnboardingHomePage: React.FC<HomePageProps> = ({ showOnboarding }) => {
+  console.log(showOnboarding)
   const [arts, setArts] = useState<Art[]>([]);
   const [modalVisible, setModalVisible] = useState(showOnboarding);
   const [onboardingStep, setOnboardingStep] = useState(1);
@@ -85,6 +83,73 @@ const HomePage: React.FC<HomePageProps> = ({ showOnboarding }) => {
         return { width: scaledWidth, height: scaledHeight };
       };
 
+
+  const handleNextStep = () => {
+    if (onboardingStep < 4) {
+      setOnboardingStep(onboardingStep + 1);
+    } else {
+      setModalVisible(false);
+    }
+  };
+
+  const renderModalContent = () => {
+    let modalContent = null;
+
+    switch (onboardingStep) {
+      case 1:
+        modalContent = (
+          <View style={styles.modalContent}>
+            <Text style={styles.welcomeText}>Welcome to </Text>
+            <Image source={require('../assets/logo_transparent.png')} />
+          </View>
+        );
+        break;
+      case 2:
+        modalContent = (
+          <View style={styles.modalContent}>
+            <Image source={require('../assets/onboarding1.png')} style={{height: 350, width: 200, borderRadius: 20}} />
+            <Text style={styles.onboardingText}>
+              Explore art on your homepage and select ones you’d like to see more of.
+            </Text>
+          </View>
+        );
+        break;
+      case 3:
+        modalContent = (
+          <View style={styles.modalContent}>
+            <Image source={require('../assets/onboarding2.png')} style={{height: 350, width: 188, borderRadius: 20}} />
+            <Text style={styles.onboardingText}>
+              Once you've liked enough of a certain artist’s work, you’ll be recommended their profile.
+            </Text>
+          </View>
+        );
+        break;
+        case 4:
+          modalContent = (
+            <View style={styles.modalContent}>
+              <Image source={require('../assets/onboarding3.png')} style={{height: 350, width: 190, borderRadius: 20}} />
+              <Text style={styles.onboardingText}>
+              From there, you can message, collaborate, schedule meetings... and expand your artistic horizons!
+              </Text>
+            </View>
+          );
+          break;
+      default:
+        break;
+    }
+
+    return (
+      <View style={styles.modalContainer}>
+        {modalContent}
+        <View style={styles.nextButtonContainer}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
+            <Text style={styles.nextButtonText}> {onboardingStep < 4 ? 'Next' : 'Go Explore!'} </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container} horizontal={false}>
       {arts.map((item) => (
@@ -99,6 +164,10 @@ const HomePage: React.FC<HomePageProps> = ({ showOnboarding }) => {
           />
         </TouchableOpacity>
       ))}
+
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+        {renderModalContent()}
+      </Modal>
     </ScrollView>
   );
 };
@@ -157,7 +226,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomePage;
+export default OnboardingHomePage;
 
 
 

@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginLeft: 0,
-    paddingTop: 5,
+    paddingTop: 20,
   },
   titleText: {
     fontSize: 25,
@@ -315,6 +315,7 @@ const styles = StyleSheet.create({
   },
   pendingContainer: {
    height: 500,
+   marginTop: 50,
   },
   nameText: {
     fontSize: 20,
