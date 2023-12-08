@@ -25,7 +25,6 @@ export type RootStackParamList = {
         artTags: {type: [String], default: []};
         width: number;
         height: number;
-        artistTags: string[];
     }};
     ArtistProfilePage: { data: {
         userId: string;
@@ -38,6 +37,7 @@ export type RootStackParamList = {
     InboxPage: undefined,
     ChatPage: {
         data: {
+            _id: string;
             userId: string;
             userName: string;
             userProfileImgAddress: string;

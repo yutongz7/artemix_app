@@ -263,13 +263,13 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     backgroundColor: '#D9D9D9',
-    alignSelf: 'center',
-	width: '100%',
-	height: 40,
+    // alignSelf: 'center',
+    width: '83%',
+    height: 40,
     borderRadius: 10,
     borderStyle: 'solid',
     borderColor: "#5364B7",
-    borderWidth: 3,
+    borderWidth: 1,
     marginTop: 5,
     alignItems: 'center'
   },
@@ -358,8 +358,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   add: {
-    width: 40,
-    height: 27,
+    width: 60,
+    height: 40,
     backgroundColor: '#5364B7',
     borderRadius: 10,
     alignItems: 'center',

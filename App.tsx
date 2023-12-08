@@ -10,13 +10,20 @@ import ChatPage from './src/screens/ChatPage';
 import ArtistProfilePage from './src/screens/ArtistProfilePage';
 import ProfilePage from './src/screens/ProfilePage';
 import UserSettings from './src/screens/UserSettings';
+import PostPage from './src/screens/PostPage';
 import { RootStackParamList } from './src/navigation/NavigationTypes';
+<<<<<<< HEAD
 import { GlobalProvider } from './GlobalContext';
+=======
+import { LogBox } from "react-native"
+>>>>>>> 7d15c19ab904c768cfcd9aa33b06b06c17e8e4a9
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+LogBox.ignoreAllLogs(true);
 
 const App = () => {
   return (
+<<<<<<< HEAD
     <GlobalProvider>
       <NavigationContainer>
         <Stack.Navigator
@@ -37,6 +44,27 @@ const App = () => {
         </Stack.Navigator>
       </NavigationContainer>
     </GlobalProvider>
+=======
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+        initialRouteName="LoginPage"
+      >
+        <Stack.Screen name="Home" component={BottomTabNavigator} />
+        <Stack.Screen name="DetailPage" component={DetailPage} />
+        <Stack.Screen name="RecPage" component={RecPage} />
+        <Stack.Screen name="LoginPage" component={LoginPage} />
+        <Stack.Screen name="RegistrationPage" component={RegistrationPage} />
+        <Stack.Screen name="ArtistProfilePage" component={ArtistProfilePage} />
+        <Stack.Screen name="ChatPage" component={ChatPage} />
+        <Stack.Screen name="ProfilePage" component={ProfilePage} />
+        <Stack.Screen name="UserSettings" component={UserSettings} />
+        <Stack.Screen name="PostPage" component={PostPage} />
+      </Stack.Navigator>
+    </NavigationContainer>
+>>>>>>> 7d15c19ab904c768cfcd9aa33b06b06c17e8e4a9
   );
 };
 
