@@ -60,7 +60,7 @@ const RegistrationPage = () => {
       setEmailError(false);
       const userPhone = parseInt(phone.replace(/-/g, ''))
       const userPreferenceTagsList = tags.split(", ").map(tag => tag.toLowerCase());
-      const imgAddress = 'default-profile-photo.jpg';
+      const imgAddress = 'default-profile-photo.png';
       try {
         const userObject = {
           userId: userId,
@@ -68,7 +68,7 @@ const RegistrationPage = () => {
           userPassword: password,
           userEmail: email,
           userPhone: userPhone,
-          userProfileImgAddress: 'default-profile-photo.jpg',
+          userProfileImgAddress: 'default-profile-photo.png',
           userPreferenceTags: userPreferenceTagsList,
           tags: selectedPreferences,
         };
@@ -151,7 +151,7 @@ const RegistrationPage = () => {
       </TouchableOpacity>
       <Image style={{ alignSelf: 'center', height: 75, width: 260 }} source={require('../assets/logo.png')}></Image>
       <TouchableOpacity style={styles.profilePictureContainer} onPress={handleUploadPhoto}>
-        <Image style={{height: 90, width: 90, borderRadius: 50}} source={profilePhoto ? require('../assets/icons/default-profile-photo.jpg') : require('../assets/icons/blank_profile.png')}></Image>
+        <Image style={{height: 90, width: 90, borderRadius: 50}} source={profilePhoto ? require('../assets/icons/default-profile-photo.png') : require('../assets/icons/blank_profile.png')}></Image>
         <Text style={styles.uploadPhotoText}>Upload Photo</Text>
       </TouchableOpacity>
 
